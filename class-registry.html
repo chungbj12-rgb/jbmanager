@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>수업·클래스 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>수업·클래스</h2>
+          <p>클래스별 일정·강사·수강생 연동 · 상세 페이지 링크 공유</p>
+        </div>
+        <div class="data-toolbar">
+          <a class="btn btn--primary" href="class-form.html">클래스 등록</a>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>클래스명</th>
+                  <th>일정</th>
+                  <th>강사</th>
+                  <th>수강생 수</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "classesReg", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var tb = document.getElementById("tbody");
+      var list = JBContentApi.classesReg.list();
+      if (list.length === 0) {
+        tb.innerHTML =
+          '<tr><td colspan="5" class="list-empty" style="padding:1.5rem">등록된 클래스가 없습니다.</td></tr>';
+        return;
+      }
+      tb.innerHTML = list
+        .map(function (c) {
+          var n = (c.studentIds || []).length;
+          return (
+            "<tr><td>" +
+            (c.name || "") +
+            "</td><td>" +
+            (c.scheduleText || "") +
+            "</td><td>" +
+            (c.instructorName || "") +
+            "</td><td>" +
+            n +
+            "명</td><td class=\"cell-actions\">" +
+            '<a class="linkish" href="' +
+            JBContentApi.classesReg.detailHref(c.id) +
+            '">상세</a> ' +
+            '<a class="linkish" href="' +
+            JBContentApi.classesReg.formHref(c.id) +
+            '">수정</a> ' +
+            '<button type="button" class="linkish" data-del="' +
+            c.id +
+            '">삭제</button></td></tr>'
+          );
+        })
+        .join("");
+      tb.addEventListener("click", function (e) {
+        if (e.target.dataset.del && confirm("삭제할까요?")) {
+          JBContentApi.classesReg.remove(e.target.dataset.del);
+          location.reload();
+        }
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

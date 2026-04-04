@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>회원관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/members-page.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="members-workspace">
+          <h2 class="members-page-title">회원관리</h2>
+
+          <div class="members-toolbar">
+            <div class="members-toolbar__filters" role="group" aria-label="재원·휴원 표시 (둘 다 켜면 전체)">
+              <button type="button" class="members-filter-btn is-on" id="btnFilterActive">재원생</button>
+              <button type="button" class="members-filter-btn" id="btnFilterInactive">휴원생</button>
+            </div>
+            <div class="members-toolbar__center">
+              <button type="button" class="btn-member-register" id="btnOpenRegister" aria-label="회원등록">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <line x1="19" y1="8" x2="19" y2="14" />
+                  <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+                회원등록
+              </button>
+              <button type="button" class="btn-member-bulk" id="btnBulkRegister" aria-label="회원 일괄 등록">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                회원일괄등록
+              </button>
+              <button type="button" class="btn-member-bulk" id="btnGradePromote" aria-label="학년 일괄 올림" title="등록된 학년(초1~고3)을 한 단계 올립니다">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M12 19V5M5 12l7-7 7 7" />
+                </svg>
+                학년 일괄 올림
+              </button>
+            </div>
+            <div class="members-toolbar__right">
+              <div class="members-toolbar__right-stack">
+                <div class="members-count-row">
+                  <span id="membersCount" class="members-count">전체 회원: 0명</span>
+                  <span id="membersFilterLabel" class="members-count-meta"></span>
+                </div>
+                <div class="members-search-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input type="search" class="members-search" id="memberSearch" placeholder="이름으로 검색…" autocomplete="off" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="members-table-card">
+            <div class="members-table-wrap">
+              <table class="members-table">
+                <thead>
+                  <tr>
+                    <th><input type="checkbox" id="cbSelectAll" class="member-cb" title="현재 페이지 전체 선택" aria-label="현재 페이지 전체 선택" /></th>
+                    <th>이름</th>
+                    <th>성별</th>
+                    <th>학년</th>
+                    <th>학생전화번호</th>
+                    <th>학부모전화번호</th>
+                    <th>학교</th>
+                    <th>클래스</th>
+                  </tr>
+                </thead>
+                <tbody id="memberTbody"></tbody>
+              </table>
+            </div>
+            <div class="members-pager">
+              <div class="members-pager__side members-pager__side--left">
+                <div class="members-pager__size">
+                  <label class="members-page-size-label" for="memberPageSize">페이지당 표시</label>
+                  <select
+                    id="memberPageSize"
+                    class="members-page-size-select mb-select"
+                    aria-label="페이지당 표시 줄 수"
+                  >
+                    <option value="50">50줄</option>
+                    <option value="100">100줄</option>
+                    <option value="300">300줄</option>
+                  </select>
+                </div>
+              </div>
+              <div class="members-pager__nav">
+                <button type="button" id="btnPrev" aria-label="이전 페이지">이전</button>
+                <span id="pageInfo">1 / 1</span>
+                <button type="button" id="btnNext" aria-label="다음 페이지">다음</button>
+              </div>
+              <div class="members-pager__side members-pager__side--right" aria-hidden="true"></div>
+            </div>
+          </div>
+
+          <div
+            class="members-selection-fab"
+            id="membersSelectionFab"
+            hidden
+            role="region"
+            aria-label="선택한 회원 작업"
+          >
+            <p class="members-selection-fab__count" id="membersFabCount" aria-live="polite"></p>
+            <div class="members-selection-fab__actions">
+              <button type="button" class="members-fab-btn members-fab-btn--leave" id="btnFabLeave" hidden>휴원</button>
+              <button type="button" class="members-fab-btn members-fab-btn--return" id="btnFabReturn" hidden>복귀</button>
+              <button type="button" class="members-fab-btn members-fab-btn--danger" id="btnFabDelete" hidden>삭제</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <input type="file" id="bulkFile" hidden accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
+
+  <div id="membersLoading" class="members-loading-overlay" hidden>
+    <div class="members-loading-overlay__spin" aria-hidden="true"></div>
+    <span>파일을 분석하는 중…</span>
+  </div>
+
+  <div id="membersToast" class="members-toast" role="status" aria-live="polite"></div>
+
+  <div id="registerModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="registerModalTitle">
+    <div class="members-modal">
+      <div class="members-modal__head">
+        <h3 id="registerModalTitle">회원등록</h3>
+        <button type="button" class="members-modal__close" id="registerModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="memberRegisterForm">
+        <input type="hidden" id="mId" name="id" value="" />
+        <div class="mb-field">
+          <label for="mName">이름</label>
+          <input class="mb-input" type="text" id="mName" name="name" placeholder="이름" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="mGender">성별</label>
+            <select class="mb-select" id="mGender" name="gender">
+              <option value="">선택안함</option>
+              <option value="남">남</option>
+              <option value="여">여</option>
+            </select>
+          </div>
+          <div class="mb-field">
+            <label for="mGrade">학년</label>
+            <select class="mb-select" id="mGrade" name="grade">
+              <option value="">선택</option>
+              <option value="1학년">1학년</option>
+              <option value="2학년">2학년</option>
+              <option value="3학년">3학년</option>
+              <option value="4학년">4학년</option>
+              <option value="5학년">5학년</option>
+              <option value="6학년">6학년</option>
+              <option value="중1">중1</option>
+              <option value="중2">중2</option>
+              <option value="중3">중3</option>
+              <option value="고1">고1</option>
+              <option value="고2">고2</option>
+              <option value="고3">고3</option>
+              <option value="성인">성인</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="mPhone">학생 전화번호</label>
+          <input class="mb-input" type="tel" id="mPhone" name="phone" placeholder="010-0000-0000" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="mMom">학부모 전화(모)</label>
+            <input class="mb-input" type="tel" id="mMom" name="parentPhoneMother" placeholder="010-0000-0000" />
+          </div>
+          <div class="mb-field">
+            <label for="mDad">학부모 전화(부)</label>
+            <input class="mb-input" type="tel" id="mDad" name="parentPhoneFather" placeholder="010-0000-0000" />
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="mAddr">주소</label>
+          <input class="mb-input" type="text" id="mAddr" name="address" placeholder="주소" />
+        </div>
+        <div class="mb-field">
+          <label for="mSchool">학교</label>
+          <input class="mb-input" type="text" id="mSchool" name="school" placeholder="학교명" />
+        </div>
+        <div class="mb-field">
+          <label for="mClass">클래스명</label>
+          <select class="mb-select" id="mClass" name="className">
+            <option value="">클래스 선택 (클래스관리에서 등록)</option>
+          </select>
+        </div>
+        <div class="mb-field">
+          <label for="mTuition">수강료 (원)</label>
+          <input class="mb-input" type="number" id="mTuition" name="tuition" placeholder="숫자" min="0" step="1" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="mPickup">승하차 · 탑승 위치</label>
+            <input class="mb-input" type="text" id="mPickup" name="pickupLocation" placeholder="직접 입력" autocomplete="off" />
+          </div>
+          <div class="mb-field">
+            <label for="mDrop">승하차 · 하차 위치</label>
+            <input class="mb-input" type="text" id="mDrop" name="dropoffLocation" placeholder="직접 입력" autocomplete="off" />
+          </div>
+        </div>
+        <div class="mb-actions">
+          <button type="button" class="btn-mb-cancel" id="btnRegisterCancel">취소</button>
+          <button type="submit" class="btn-mb-save" id="btnRegisterSave">등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="memberDetailModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="memberDetailTitle">
+    <div class="members-modal members-modal--wide">
+      <div class="members-modal__head">
+        <h3 id="memberDetailTitle">회원 상세정보</h3>
+        <button type="button" class="members-modal__close" id="memberDetailModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="memberDetailForm">
+        <input type="hidden" id="dId" value="" />
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="dName">이름</label>
+            <input class="mb-input" type="text" id="dName" autocomplete="name" />
+          </div>
+          <div class="mb-field">
+            <label for="dGender">성별</label>
+            <select class="mb-select" id="dGender">
+              <option value="">선택안함</option>
+              <option value="남">남</option>
+              <option value="여">여</option>
+            </select>
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="dGrade">학년</label>
+          <select class="mb-select" id="dGrade">
+            <option value="">선택</option>
+            <option value="1학년">1학년</option>
+            <option value="2학년">2학년</option>
+            <option value="3학년">3학년</option>
+            <option value="4학년">4학년</option>
+            <option value="5학년">5학년</option>
+            <option value="6학년">6학년</option>
+            <option value="중1">중1</option>
+            <option value="중2">중2</option>
+            <option value="중3">중3</option>
+            <option value="고1">고1</option>
+            <option value="고2">고2</option>
+            <option value="고3">고3</option>
+            <option value="성인">성인</option>
+          </select>
+        </div>
+        <div class="mb-field">
+          <label for="dAddr">주소</label>
+          <input class="mb-input" type="text" id="dAddr" autocomplete="street-address" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="dSchool">학교</label>
+            <input class="mb-input" type="text" id="dSchool" />
+          </div>
+          <div class="mb-field">
+            <label for="dTuition">수강료 (원)</label>
+            <input class="mb-input" type="number" id="dTuition" min="0" step="1" placeholder="" />
+          </div>
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="dPickup">승차위치</label>
+            <input class="mb-input" type="text" id="dPickup" autocomplete="off" />
+          </div>
+          <div class="mb-field">
+            <label for="dDrop">하차위치</label>
+            <input class="mb-input" type="text" id="dDrop" autocomplete="off" />
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="dPhone">전화번호</label>
+          <input class="mb-input" type="tel" id="dPhone" placeholder="010-0000-0000" autocomplete="tel" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="dDad">학부모 전화번호(부)</label>
+            <input class="mb-input" type="tel" id="dDad" placeholder="010-0000-0000" />
+          </div>
+          <div class="mb-field">
+            <label for="dMom">학부모 전화번호(모)</label>
+            <input class="mb-input" type="tel" id="dMom" placeholder="010-0000-0000" />
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="dClass">클래스</label>
+          <select class="mb-select" id="dClass">
+            <option value="">클래스 선택</option>
+          </select>
+        </div>
+        <div class="mb-actions">
+          <button type="button" class="btn-mb-cancel" id="btnDetailClose">닫기</button>
+          <button type="button" class="btn-detail-save" id="btnDetailSave">수정</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="bulkUploadModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="bulkUploadTitle">
+    <div class="members-modal members-modal--wide bulk-upload-modal">
+      <div class="members-modal__head">
+        <h3 id="bulkUploadTitle">회원일괄등록</h3>
+        <button type="button" class="members-modal__close" id="bulkUploadModalClose" aria-label="닫기">×</button>
+      </div>
+      <p class="bulk-upload-lead">
+        Excel 파일을 여기에 끌어놓으세요 또는 <strong>파일 선택</strong> 버튼을 눌러 업로드하세요.
+      </p>
+      <ul class="bulk-upload-rules">
+        <li>지원 파일 형식: .xlsx, .xls (Excel 파일만 가능)</li>
+        <li>필수 열: 이름, 클래스</li>
+        <li>선택 열: 학생전화번호, 학부모전화번호</li>
+      </ul>
+      <div
+        id="bulkDropZone"
+        class="bulk-drop-zone"
+        tabindex="0"
+        role="button"
+        aria-label="Excel 파일을 끌어놓거나 Enter로 파일 선택"
+      >
+        <span class="bulk-drop-zone__icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M4 14v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2" stroke-linecap="round" />
+            <path d="M4 14h16" stroke-linecap="round" />
+          </svg>
+        </span>
+        <p class="bulk-drop-zone__title">Excel 파일을 여기에 끌어놓으세요</p>
+        <p class="bulk-drop-zone__sub">또는 아래 버튼으로 파일을 선택하세요</p>
+        <button type="button" class="btn-bulk-pick" id="btnBulkPickFile">파일 선택</button>
+      </div>
+      <div class="mb-actions bulk-upload-actions">
+        <button type="button" class="btn-mb-cancel" id="bulkUploadCancelBtn">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bulkModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="bulkModalTitle">
+    <div class="members-modal members-modal--wide">
+      <div class="members-modal__head">
+        <h3 id="bulkModalTitle">일괄등록 검증 결과</h3>
+        <button type="button" class="members-modal__close" id="bulkModalClose" aria-label="닫기">×</button>
+      </div>
+      <p class="bulk-modal-hint">
+        첫 행은 헤더로 인식합니다. 정상으로 표시된 행만 등록할 수 있습니다. 학부모 전화가 있으면 이름+번호 기준, 없으면 이름+클래스 기준으로 중복을 확인합니다.
+      </p>
+      <div class="bulk-preview-scroll">
+        <table class="bulk-preview-table">
+          <thead>
+            <tr>
+              <th>행</th>
+              <th>이름</th>
+              <th>클래스</th>
+              <th>학생전화</th>
+              <th>학부모(모/부)</th>
+              <th>상태</th>
+              <th>메시지</th>
+            </tr>
+          </thead>
+          <tbody id="bulkPreviewBody"></tbody>
+        </table>
+      </div>
+      <div class="mb-actions">
+        <button type="button" class="btn-mb-cancel" id="bulkCancelBtn">닫기</button>
+        <button type="button" class="btn-mb-save" id="bulkSubmitBtn" disabled>등록하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/members-page.js"></script>
+  <script>
+    JBAppShell.init({ activeNav: "members", pageTitle: "제이비스포츠 관리프로그램" });
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

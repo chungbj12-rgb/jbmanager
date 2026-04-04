@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>클래스관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>클래스관리</h2>
+          <p>반 이름·요일·시간대 설정 (대시보드 오늘 일정에 반영)</p>
+        </div>
+
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>클래스명</th>
+                  <th>요일</th>
+                  <th>시간</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="classTbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="classForm">
+            <div class="full chk-row" id="weekdayChecks"></div>
+            <div>
+              <label class="auth-label" for="cName">클래스명</label>
+              <input class="auth-input" id="cName" required placeholder="예: U-15(여중대표반)" />
+            </div>
+            <div>
+              <label class="auth-label" for="cStart">시작</label>
+              <input class="auth-input" id="cStart" type="time" value="10:00" />
+            </div>
+            <div>
+              <label class="auth-label" for="cEnd">종료</label>
+              <input class="auth-input" id="cEnd" type="time" value="13:00" />
+            </div>
+            <div>
+              <button type="submit" class="btn btn--primary">추가</button>
+            </div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "classes", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+
+      var days = ["일", "월", "화", "수", "목", "금", "토"];
+      var weekEl = document.getElementById("weekdayChecks");
+      weekEl.innerHTML = days
+        .map(function (d, i) {
+          return (
+            "<label><input type=\"checkbox\" name=\"wd\" value=\"" +
+            i +
+            "\" checked /> " +
+            d +
+            "</label>"
+          );
+        })
+        .join("");
+
+      var tbody = document.getElementById("classTbody");
+
+      function selectedWeekdays() {
+        return Array.prototype.slice
+          .call(weekEl.querySelectorAll('input[name="wd"]:checked'))
+          .map(function (el) {
+            return Number(el.value);
+          });
+      }
+
+      function render() {
+        tbody.innerHTML = JBData.getClasses()
+          .map(function (c) {
+            var wd = (c.weekdays || [])
+              .slice()
+              .sort(function (a, b) {
+                return a - b;
+              })
+              .map(function (i) {
+                return days[i];
+              })
+              .join(", ");
+            return (
+              "<tr>" +
+              "<td>" +
+              (c.name || "") +
+              "</td>" +
+              "<td>" +
+              wd +
+              "</td>" +
+              "<td>" +
+              (c.startTime || "") +
+              "–" +
+              (c.endTime || "") +
+              "</td>" +
+              '<td class="cell-actions"><button type="button" class="linkish" data-del="' +
+              c.id +
+              '">삭제</button></td>' +
+              "</tr>"
+            );
+          })
+          .join("");
+      }
+
+      tbody.addEventListener("click", function (e) {
+        var t = e.target;
+        if (t.dataset.del && confirm("이 클래스를 삭제할까요?")) {
+          JBData.deleteClassTemplate(t.dataset.del);
+          render();
+        }
+      });
+
+      document.getElementById("classForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var w = selectedWeekdays();
+        if (!w.length) {
+          alert("요일을 하나 이상 선택해주세요.");
+          return;
+        }
+        JBData.addClassTemplate({
+          name: document.getElementById("cName").value,
+          weekdays: w,
+          startTime: document.getElementById("cStart").value || "09:00",
+          endTime: document.getElementById("cEnd").value || "10:00",
+        });
+        document.getElementById("cName").value = "";
+        render();
+      });
+
+      render();
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

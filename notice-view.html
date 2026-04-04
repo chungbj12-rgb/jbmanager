@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>공지 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/notion-editor.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2 id="nTitle" style="font-size:1.5rem">공지</h2>
+          <p><a href="notices.html" style="color:var(--orange-bright)">← 목록</a> · <span id="nMeta"></span></p>
+        </div>
+        <div class="panel-card">
+          <p class="content-section-title">고유 링크</p>
+          <div class="permalink-row">
+            <input class="auth-input" id="permalink" readonly />
+            <button type="button" class="btn btn--secondary btn--sm" id="btnCopyLink">복사</button>
+          </div>
+          <div class="modal-account-actions" style="margin-top: 1rem">
+            <button type="button" class="btn btn--primary" id="btnEdit">수정</button>
+            <button type="button" class="btn btn--secondary" id="btnDelete">삭제</button>
+          </div>
+        </div>
+        <div id="noticeBodyReadonly" class="notion-editor-wrap" style="margin-top:1rem"></div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    JBAppShell.init({ activeNav: "notices", pageTitle: "제이비스포츠 관리프로그램" });
+  </script>
+  <script type="module" src="js/notice-view.mjs"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

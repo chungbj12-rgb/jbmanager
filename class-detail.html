@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>클래스 상세 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/notion-editor.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>클래스 상세</h2>
+          <p><a href="class-registry.html" style="color:var(--orange-bright)">← 목록</a></p>
+        </div>
+        <div class="panel-card">
+          <dl class="detail-dl">
+            <dt>클래스명</dt><dd id="cName">—</dd>
+            <dt>일정</dt><dd id="cSchedule">—</dd>
+            <dt>강사</dt><dd id="cInstructor">—</dd>
+            <dt>강사 연락처</dt><dd id="cInstructorContact">—</dd>
+          </dl>
+          <p class="content-section-title">수강생</p>
+          <ul id="studentList" style="margin:0 0 1rem;padding-left:1.25rem"></ul>
+          <p class="content-section-title">고유 링크</p>
+          <div class="permalink-row">
+            <input class="auth-input" id="permalink" readonly />
+            <button type="button" class="btn btn--secondary btn--sm" id="btnCopyLink">복사</button>
+          </div>
+          <div class="modal-account-actions" style="margin-top: 1rem">
+            <button type="button" class="btn btn--primary" id="btnEdit">수정</button>
+            <button type="button" class="btn btn--secondary" id="btnDelete">삭제</button>
+          </div>
+        </div>
+        <p class="content-section-title">상세 설명</p>
+        <div id="classDescReadonly" class="notion-editor-wrap"></div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    JBAppShell.init({ activeNav: "classesReg", pageTitle: "제이비스포츠 관리프로그램" });
+  </script>
+  <script type="module" src="js/class-detail.mjs"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

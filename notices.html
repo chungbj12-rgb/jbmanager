@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>공지사항 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>공지사항</h2>
+          <p>노션 스타일로 작성 · 링크로 공유</p>
+        </div>
+        <div class="data-toolbar">
+          <a class="btn btn--primary" href="notice-form.html">공지 작성</a>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>제목</th>
+                  <th>수정일</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "notices", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var tb = document.getElementById("tbody");
+      var list = JBContentApi.notices.list();
+      if (list.length === 0) {
+        tb.innerHTML =
+          '<tr><td colspan="3" class="list-empty" style="padding:1.5rem">등록된 공지가 없습니다.</td></tr>';
+        return;
+      }
+      tb.innerHTML = list
+        .map(function (n) {
+          var u = n.updatedAt ? new Date(n.updatedAt).toLocaleString("ko-KR") : "—";
+          return (
+            "<tr><td>" +
+            (n.title || "") +
+            "</td><td>" +
+            u +
+            '</td><td class="cell-actions">' +
+            '<a class="linkish" href="' +
+            JBContentApi.notices.viewHref(n.id) +
+            '">보기</a> ' +
+            '<a class="linkish" href="' +
+            JBContentApi.notices.formHref(n.id) +
+            '">수정</a> ' +
+            '<button type="button" class="linkish" data-del="' +
+            n.id +
+            '">삭제</button></td></tr>'
+          );
+        })
+        .join("");
+      tb.addEventListener("click", function (e) {
+        if (e.target.dataset.del && confirm("삭제할까요?")) {
+          JBContentApi.notices.remove(e.target.dataset.del);
+          location.reload();
+        }
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

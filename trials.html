@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>체험관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>체험관리</h2>
+          <p>체험 신청·방문 일정을 기록합니다</p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>연락처</th>
+                  <th>체험일</th>
+                  <th>상태</th>
+                  <th>비고</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="f">
+            <div>
+              <label class="auth-label" for="n">이름</label>
+              <input class="auth-input" id="n" required />
+            </div>
+            <div>
+              <label class="auth-label" for="p">연락처</label>
+              <input class="auth-input" id="p" />
+            </div>
+            <div>
+              <label class="auth-label" for="d">체험일</label>
+              <input class="auth-input" id="d" type="date" />
+            </div>
+            <div>
+              <label class="auth-label" for="s">상태</label>
+              <select class="auth-input auth-select" id="s" style="padding-right: 2rem">
+                <option>예약</option>
+                <option>완료</option>
+                <option>취소</option>
+              </select>
+            </div>
+            <div class="full">
+              <label class="auth-label" for="note">비고</label>
+              <input class="auth-input" id="note" />
+            </div>
+            <div><button type="submit" class="btn btn--primary">추가</button></div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "trials", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var tb = document.getElementById("tbody");
+      var today = JBData.dateKey(new Date());
+      document.getElementById("d").value = today;
+
+      function render() {
+        var list = JBData.getTrials().slice().reverse();
+        tb.innerHTML = list
+          .map(function (r) {
+            return (
+              "<tr><td>" +
+              (r.applicantName || "") +
+              "</td><td>" +
+              (r.phone || "") +
+              "</td><td>" +
+              (r.trialDate || "") +
+              "</td><td>" +
+              (r.status || "") +
+              "</td><td>" +
+              (r.note || "") +
+              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
+              r.id +
+              '">삭제</button></td></tr>'
+            );
+          })
+          .join("");
+      }
+
+      tb.addEventListener("click", function (e) {
+        if (e.target.dataset.id && confirm("삭제할까요?")) {
+          JBData.saveTrials(JBData.getTrials().filter(function (x) { return x.id !== e.target.dataset.id; }));
+          render();
+        }
+      });
+
+      document.getElementById("f").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var list = JBData.getTrials();
+        list.push({
+          id: "t-" + Date.now(),
+          applicantName: document.getElementById("n").value.trim(),
+          phone: document.getElementById("p").value.trim(),
+          trialDate: document.getElementById("d").value || today,
+          status: document.getElementById("s").value,
+          note: document.getElementById("note").value.trim(),
+        });
+        JBData.saveTrials(list);
+        e.target.reset();
+        document.getElementById("d").value = today;
+        render();
+      });
+      render();
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

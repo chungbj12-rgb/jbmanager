@@ -1,0 +1,81 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "preview-server-bg",
+      "type": "shell",
+      "command": "python preview_server.py",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "isBackground": true,
+      "presentation": {
+        "reveal": "silent",
+        "panel": "dedicated"
+      },
+      "problemMatcher": {
+        "owner": "preview-server",
+        "pattern": { "regexp": "^$" },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": ".",
+          "endsPattern": "PREVIEW_SERVER_READY"
+        }
+      }
+    },
+    {
+      "label": "open-login-in-editor-browser",
+      "type": "shell",
+      "command": "echo ${input:openLoginInSimpleBrowser}",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "never",
+        "echo": false,
+        "focus": false,
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "로그인 화면: 에디터 안 미리보기 (한 번에)",
+      "type": "shell",
+      "command": "echo OK",
+      "options": { "cwd": "${workspaceFolder}" },
+      "dependsOn": ["preview-server-bg", "open-login-in-editor-browser"],
+      "dependsOrder": "sequence",
+      "problemMatcher": [],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "showReuseMessage": false
+      }
+    },
+    {
+      "label": "스튜디오: 미리보기 서버만 (Python)",
+      "type": "shell",
+      "command": "python preview_server.py",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated"
+      },
+      "problemMatcher": []
+    }
+  ],
+  "inputs": [
+    {
+      "id": "openLoginInSimpleBrowser",
+      "type": "command",
+      "command": "simpleBrowser.show",
+      "args": ["http://127.0.0.1:8765/index.html"]
+    }
+  ]
+}

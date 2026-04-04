@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>수납관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>수납관리</h2>
+          <p>수납·미납 내역 (대시보드 이번 달 수납·미납 건수에 반영)</p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>대상</th>
+                  <th>금액</th>
+                  <th>귀속월</th>
+                  <th>상태</th>
+                  <th>메모</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="f">
+            <div>
+              <label class="auth-label" for="mid">회원</label>
+              <select class="auth-input auth-select" id="mid" style="padding-right: 2rem">
+                <option value="">(미지정)</option>
+              </select>
+            </div>
+            <div>
+              <label class="auth-label" for="amt">금액(원)</label>
+              <input class="auth-input" id="amt" type="number" min="0" step="1000" required />
+            </div>
+            <div>
+              <label class="auth-label" for="mon">귀속월</label>
+              <input class="auth-input" id="mon" type="month" />
+            </div>
+            <div>
+              <label class="auth-label" for="st">상태</label>
+              <select class="auth-input auth-select" id="st" style="padding-right: 2rem">
+                <option value="paid">수납완료</option>
+                <option value="unpaid">미납</option>
+              </select>
+            </div>
+            <div class="full">
+              <label class="auth-label" for="memo">메모</label>
+              <input class="auth-input" id="memo" />
+            </div>
+            <div><button type="submit" class="btn btn--primary">등록</button></div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "payments", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var now = new Date();
+      document.getElementById("mon").value = JBData.monthKey(now);
+      var tb = document.getElementById("tbody");
+      var sel = document.getElementById("mid");
+
+      function fillMembers() {
+        sel.innerHTML =
+          '<option value="">(미지정)</option>' +
+          JBData.getMembers()
+            .map(function (m) {
+              return '<option value="' + m.id + '">' + (m.name || "") + "</option>";
+            })
+            .join("");
+      }
+
+      function render() {
+        tb.innerHTML = JBData.getPayments()
+          .slice()
+          .reverse()
+          .map(function (p) {
+            var mn = p.memberName;
+            if (!mn && p.memberId) {
+              var mem = JBData.memberById(p.memberId);
+              mn = mem ? mem.name : p.memberId;
+            }
+            var st = p.status === "unpaid" ? "미납" : "수납완료";
+            return (
+              "<tr><td>" +
+              (mn || "-") +
+              "</td><td>₩" +
+              Number(p.amount || 0).toLocaleString("ko-KR") +
+              "</td><td>" +
+              (p.monthKey || "") +
+              "</td><td>" +
+              st +
+              "</td><td>" +
+              (p.memo || "") +
+              '</td><td class="cell-actions">' +
+              (p.status === "unpaid'
+                ? '<button type="button" class="linkish" data-pay="' + p.id + '">수납처리</button> '
+                : "") +
+              '<button type="button" class="linkish" data-del="' +
+              p.id +
+              '">삭제</button></td></tr>'
+            );
+          })
+          .join("");
+      }
+
+      tb.addEventListener("click", function (e) {
+        if (e.target.dataset.pay) {
+          JBData.updatePayment(e.target.dataset.pay, { status: "paid" });
+          render();
+          return;
+        }
+        if (e.target.dataset.del && confirm("삭제할까요?")) {
+          JBData.deletePayment(e.target.dataset.del);
+          render();
+        }
+      });
+
+      document.getElementById("f").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var id = document.getElementById("mid").value;
+        var mem = id ? JBData.memberById(id) : null;
+        JBData.addPayment({
+          memberId: id,
+          memberName: mem ? mem.name : "",
+          amount: document.getElementById("amt").value,
+          monthKey: document.getElementById("mon").value || JBData.monthKey(new Date()),
+          status: document.getElementById("st").value,
+          memo: document.getElementById("memo").value,
+        });
+        e.target.reset();
+        document.getElementById("mon").value = JBData.monthKey(new Date());
+        fillMembers();
+        render();
+      });
+
+      fillMembers();
+      render();
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

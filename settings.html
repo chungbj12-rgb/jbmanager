@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>설정 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>설정</h2>
+          <p>데이터 초기화 및 안내</p>
+        </div>
+        <div class="panel-card" style="max-width: 36rem">
+          <h3 style="margin-top:0">운영 데이터</h3>
+          <p class="list-empty" style="margin-bottom:1rem">
+            회원·클래스·출결·수납 등 관리 데이터는 이 PC의 브라우저 <strong>localStorage</strong>에만 저장됩니다.
+            다른 기기와 자동으로 동기화되지 않습니다.
+          </p>
+          <button type="button" class="btn btn--secondary" id="resetBiz">
+            운영 데이터만 초기화 후 데모 데이터 다시 넣기
+          </button>
+          <p class="list-empty" style="margin-top:1rem">
+            로그인 계정(직원) 목록은 유지됩니다. 계정까지 지우려면 브라우저에서 사이트 데이터를 삭제하세요.
+          </p>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "settings", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+
+      var KEYS = [
+        "jb_center_members",
+        "jb_members_schema_v2",
+        "jb_class_templates",
+        "jb_attendance_records",
+        "jb_payment_records",
+        "jb_trial_records",
+        "jb_makeup_records",
+        "jb_schedule_events",
+        "jb_consultation_records",
+        "jb_club_team_records",
+        "jb_shuttle_records",
+        "jb_protective_requests",
+        "jb_students_registry_v1",
+        "jb_classes_registry_v1",
+        "jb_notices_v1",
+        "jb_application_links",
+        "jb_management_data_v1",
+      ];
+
+      document.getElementById("resetBiz").addEventListener("click", function () {
+        if (!confirm("운영 데이터를 모두 지우고 초기 데모 데이터를 다시 생성할까요?")) return;
+        for (var i = 0; i < KEYS.length; i++) {
+          localStorage.removeItem(KEYS[i]);
+        }
+        JBData.ensureSeed();
+        alert("초기화했습니다. 대시보드에서 수치를 확인해 보세요.");
+        location.href = "main.html";
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보호대신청 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>보호대신청</h2>
+          <p>보호대 사이즈·수령 등 신청 내역을 관리합니다</p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>신청자</th>
+                  <th>품목/사이즈</th>
+                  <th>신청일</th>
+                  <th>상태</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="f">
+            <div>
+              <label class="auth-label" for="who">신청자</label>
+              <input class="auth-input" id="who" required />
+            </div>
+            <div>
+              <label class="auth-label" for="item">품목·사이즈</label>
+              <input class="auth-input" id="item" placeholder="예: 무릎 M" />
+            </div>
+            <div>
+              <label class="auth-label" for="d">신청일</label>
+              <input class="auth-input" id="d" type="date" />
+            </div>
+            <div>
+              <label class="auth-label" for="st">상태</label>
+              <select class="auth-input auth-select" id="st" style="padding-right: 2rem">
+                <option>접수</option>
+                <option>준비중</option>
+                <option>수령완료</option>
+              </select>
+            </div>
+            <div><button type="submit" class="btn btn--primary">추가</button></div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "protective", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      document.getElementById("d").value = JBData.dateKey(new Date());
+      var tb = document.getElementById("tbody");
+
+      function render() {
+        tb.innerHTML = JBData.getProtectiveRequests()
+          .slice()
+          .reverse()
+          .map(function (r) {
+            return (
+              "<tr><td>" +
+              (r.applicantName || "") +
+              "</td><td>" +
+              (r.itemSpec || "") +
+              "</td><td>" +
+              (r.requestDate || "") +
+              "</td><td>" +
+              (r.status || "") +
+              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
+              r.id +
+              '">삭제</button></td></tr>'
+            );
+          })
+          .join("");
+      }
+
+      tb.addEventListener("click", function (e) {
+        if (e.target.dataset.id && confirm("삭제할까요?")) {
+          JBData.saveProtectiveRequests(
+            JBData.getProtectiveRequests().filter(function (x) { return x.id !== e.target.dataset.id; })
+          );
+          render();
+        }
+      });
+
+      document.getElementById("f").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var list = JBData.getProtectiveRequests();
+        list.push({
+          id: "pr-" + Date.now(),
+          applicantName: document.getElementById("who").value.trim(),
+          itemSpec: document.getElementById("item").value.trim(),
+          requestDate: document.getElementById("d").value,
+          status: document.getElementById("st").value,
+        });
+        JBData.saveProtectiveRequests(list);
+        e.target.reset();
+        document.getElementById("d").value = JBData.dateKey(new Date());
+        render();
+      });
+      render();
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

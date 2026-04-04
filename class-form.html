@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>클래스 등록 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/notion-editor.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2 id="pageTitleLabel">클래스 등록</h2>
+          <p>수강생은 <strong>학생관리</strong>에 등록된 인원과 연동됩니다</p>
+        </div>
+        <div id="formErr" class="auth-banner auth-banner--error" hidden role="alert"></div>
+        <form id="classForm" class="data-card" style="padding: 1.25rem">
+          <div class="content-form-grid">
+            <div class="auth-field">
+              <label class="auth-label" for="cName">클래스명 *</label>
+              <input class="auth-input" id="cName" required />
+            </div>
+            <div class="auth-field" style="grid-column: 1 / -1">
+              <label class="auth-label" for="cSchedule">일정</label>
+              <input class="auth-input" id="cSchedule" placeholder="예: 월·수 16:00–18:00 / 토 10:00–13:00" />
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="cInstructor">강사명</label>
+              <input class="auth-input" id="cInstructor" />
+            </div>
+            <div class="auth-field">
+              <label class="auth-label" for="cInstructorContact">강사 연락처</label>
+              <input class="auth-input" id="cInstructorContact" type="tel" />
+            </div>
+          </div>
+          <p class="content-section-title">수강생 연동</p>
+          <div id="studentChecks" class="chk-row" style="padding: 0.25rem 0 0.75rem"></div>
+          <p class="content-section-title">상세 설명 (노션 스타일)</p>
+          <div id="classDescEditor" class="notion-editor-wrap"></div>
+          <div class="modal-account-actions" style="margin-top: 1rem">
+            <button type="submit" class="btn btn--primary">저장</button>
+            <button type="button" class="btn btn--secondary" id="btnCancel">취소</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+  <script src="auth-config.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    JBAppShell.init({ activeNav: "classesReg", pageTitle: "제이비스포츠 관리프로그램" });
+  </script>
+  <script type="module" src="js/class-form.mjs"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>
