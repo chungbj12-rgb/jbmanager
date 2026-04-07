@@ -1,0 +1,252 @@
+/* 출결관리 — 다크 테이블 + 상단 날짜·클래스 선택 */
+
+:root {
+  --at-bg: #1a1d2e;
+  --at-card: rgba(15, 18, 28, 0.92);
+  --at-border: rgba(255, 255, 255, 0.1);
+  --at-muted: #9aa3b2;
+  --at-text: #e8eaed;
+  --at-green: #3ddc84;
+  --at-green-text: #0d1f14;
+}
+
+.att-workspace {
+  background: var(--mb-bg, #1e1e2f);
+  margin: -1.25rem -1.25rem -2rem;
+  min-height: calc(100dvh - 3.5rem);
+  padding: 1.25rem 1.25rem 2rem;
+  color: var(--mb-text, #f0f2f5);
+}
+
+.att-page-title {
+  margin: 0 0 1rem;
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.att-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.att-date-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 12px;
+  border: 1px solid var(--at-border);
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.att-date-nav__btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--at-text);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.att-date-nav__btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.att-date-nav__label {
+  min-width: 14rem;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--at-text);
+  padding: 0 0.35rem;
+}
+
+.att-class-select {
+  min-width: min(100%, 22rem);
+  padding: 0.55rem 2.25rem 0.55rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--at-text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--at-border);
+  border-radius: 10px;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' viewBox='0 0 12 8'%3E%3Cpath stroke='%239aa3b2' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M1 1.5 6 6l5-4.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+}
+
+.att-class-select:focus {
+  outline: none;
+  border-color: rgba(255, 152, 0, 0.45);
+  box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.12);
+}
+
+.att-table-card {
+  border: 1px solid var(--at-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(0, 0, 0, 0.2);
+  margin-bottom: 1rem;
+}
+
+.att-table-wrap {
+  overflow-x: auto;
+  max-height: min(62vh, 640px);
+  overflow-y: auto;
+}
+
+.att-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 0.82rem;
+}
+
+.att-table th,
+.att-table td {
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  vertical-align: middle;
+}
+
+.att-table th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: #1a1d2e;
+  color: var(--at-muted);
+  font-weight: 700;
+  font-size: 0.72rem;
+  text-align: left;
+}
+
+.att-table tbody tr {
+  background: var(--at-card);
+}
+
+.att-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.att-table .att-col-div {
+  width: 6.5rem;
+}
+.att-table .att-col-name {
+  width: 8rem;
+}
+.att-table .att-col-phone {
+  width: 10rem;
+}
+.att-table .att-col-status {
+  width: 7rem;
+}
+.att-table .att-col-note {
+  width: auto;
+  min-width: 8rem;
+}
+
+.att-cell-select,
+.att-cell-input {
+  width: 100%;
+  padding: 0.45rem 0.55rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  color: var(--at-text);
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--at-border);
+  border-radius: 8px;
+  outline: none;
+}
+
+.att-cell-select:focus,
+.att-cell-input:focus {
+  border-color: rgba(255, 152, 0, 0.45);
+}
+
+.att-cell-select:disabled {
+  opacity: 0.92;
+  cursor: default;
+  color: #cfd4dc;
+}
+
+.att-cell-input::placeholder {
+  color: #6b7280;
+}
+
+.att-footer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.att-btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.5rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--at-text);
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid var(--at-border);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.att-btn-add:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.att-btn-save {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.45rem;
+  font-family: inherit;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: var(--at-green-text);
+  background: var(--at-green);
+  border: none;
+  border-radius: 999px;
+  cursor: pointer;
+  box-shadow: 0 4px 16px rgba(61, 220, 132, 0.35);
+}
+
+.att-btn-save:hover {
+  filter: brightness(1.05);
+}
+
+.att-empty-hint {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--at-muted);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 960px) {
+  .att-workspace {
+    margin: -1rem -1rem -2rem;
+    padding: 1rem;
+  }
+  .att-date-nav__label {
+    min-width: auto;
+    font-size: 0.85rem;
+  }
+}

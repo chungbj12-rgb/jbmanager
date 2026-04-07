@@ -1,0 +1,8 @@
+{
+  "livePreview.openPreviewTarget": "Embedded Preview",
+  "livePreview.autoRefreshPreview": "On All Changes in Editor",
+  "livePreview.defaultPreviewPath": "/index.html",
+  "livePreview.useIntegratedBrowser": true,
+  "livePreview.previewDebounceDelay": 50,
+  "livePreview.showServerStatusNotifications": true
+}

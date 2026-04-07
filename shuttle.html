@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>셔틀관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/members-page.css" />
+  <link rel="stylesheet" href="css/shuttle-page.css" />
+</head>
+<body class="app-body page-shuttle">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="shuttle-workspace">
+          <div class="shuttle-page-intro">
+            <div class="shuttle-page-head shuttle-page-head--intro">
+              <div class="shuttle-page-head__column">
+                <h2 class="shuttle-page-head__title">셔틀관리</h2>
+                <p class="shuttle-page-head__sub">공유 링크로 학부모에게 안내할 수 있습니다.</p>
+                <div
+                  class="shuttle-segment-tabs members-toolbar__filters"
+                  role="tablist"
+                  aria-label="셔틀 구분"
+                >
+                  <button type="button" class="members-filter-btn is-on" id="tabShuttleParent" role="tab" aria-selected="true">
+                    학부모 차량표
+                  </button>
+                  <button type="button" class="members-filter-btn" id="tabShuttleTeacher" role="tab" aria-selected="false">
+                    차량쌤 차량표
+                  </button>
+                </div>
+              </div>
+              <div class="shuttle-head-actions" id="shuttleHeadActions">
+                <button type="button" class="btn-shuttle-link-manage" id="btnShuttleLinkManage" title="신청서·공유 링크 화면으로 이동">공유링크 관리</button>
+                <button type="button" class="btn-shuttle-share" id="btnShuttleShare">공유링크생성</button>
+                <button type="button" class="btn-shuttle-veh" id="btnShuttleVehicle">+ 차량등록</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="shuttle-workspace-body">
+          <div id="shuttleTabParent" class="shuttle-tab-panel" role="tabpanel" aria-labelledby="tabShuttleParent">
+            <div id="parentVehicleSchedule" class="parent-vehicle-schedule">
+              <h3 class="parent-vehicle-schedule__title">요일 선택</h3>
+              <div id="daySelector" class="day-selector" role="radiogroup" aria-label="요일 선택">
+                <label class="day-selector__item"><input type="radio" name="day" value="tuesday" /> 화요일</label>
+                <label class="day-selector__item"><input type="radio" name="day" value="wednesday" /> 수요일</label>
+                <label class="day-selector__item"><input type="radio" name="day" value="thursday" /> 목요일</label>
+                <label class="day-selector__item"><input type="radio" name="day" value="friday" /> 금요일</label>
+                <label class="day-selector__item"><input type="radio" name="day" value="saturday" /> 토요일</label>
+                <label class="day-selector__item"><input type="radio" name="day" value="sunday" /> 일요일</label>
+              </div>
+              <h3 class="parent-vehicle-schedule__title parent-vehicle-schedule__title--class">클래스 선택</h3>
+              <div id="classButtons" class="class-selector" aria-label="클래스 선택">
+                <p class="class-selector__empty">요일을 선택하세요.</p>
+              </div>
+
+              <h3 class="parent-vehicle-schedule__title parent-vehicle-schedule__title--class">차량 선택</h3>
+              <select id="vehicleDropdown" class="parent-vehicle-schedule__select" disabled>
+                <option value="">차량을 선택하세요</option>
+              </select>
+
+              <h3 class="parent-vehicle-schedule__title parent-vehicle-schedule__title--class">명단</h3>
+              <div class="parent-vehicle-schedule__table-wrap">
+                <table class="parent-vehicle-schedule__table">
+                  <colgroup>
+                    <col class="col-name" />
+                    <col class="col-time" />
+                    <col class="col-pickup" />
+                    <col class="col-dropoff" />
+                    <col class="col-action" />
+                  </colgroup>
+                  <thead>
+                    <tr>
+                      <th>회원 이름</th>
+                      <th>시간</th>
+                      <th>승차 장소</th>
+                      <th>하차 장소</th>
+                      <th>액션</th>
+                    </tr>
+                  </thead>
+                  <tbody id="memberListBody"></tbody>
+                </table>
+              </div>
+              <button id="addMemberBtn" class="parent-vehicle-schedule__add-btn" type="button" disabled>명단 추가</button>
+            </div>
+          </div>
+
+          <div id="shuttleTabTeacher" class="shuttle-tab-panel shuttle-tab-panel--teacher" role="tabpanel" aria-labelledby="tabShuttleTeacher" hidden>
+            <div class="shuttle-teacher-placeholder">
+              <p class="shuttle-teacher-placeholder__lead">차량쌤 차량표 관련 내용을 여기에 구현하세요.</p>
+              <p class="shuttle-teacher-placeholder__hint">운전·배차 안내용 화면을 이 탭에 연결할 수 있습니다.</p>
+            </div>
+          </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="vehicleModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="vehicleModalTitle">
+    <div class="members-modal members-modal--shuttle-veh">
+      <div class="members-modal__head">
+        <h3 id="vehicleModalTitle">차량 등록</h3>
+        <button type="button" class="members-modal__close" id="vehicleModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="vehicleForm">
+        <div class="mb-field">
+          <label for="vehName">차량명</label>
+          <input class="mb-input" type="text" id="vehName" placeholder="예: 25인승 셔틀" required />
+        </div>
+        <div class="mb-field">
+          <label for="vehPlate">차량번호</label>
+          <input class="mb-input" type="text" id="vehPlate" placeholder="예: 12가3456" required />
+        </div>
+        <div class="mb-actions">
+          <button type="button" class="btn-mb-cancel" id="vehicleModalCancel">취소</button>
+          <button type="submit" class="btn-mb-save" id="submitRegisterBtn" disabled>등록</button>
+        </div>
+      </form>
+      <div class="shuttle-veh-modal-list">
+        <h4 class="shuttle-veh-modal-list__title">등록된 차량</h4>
+        <div class="shuttle-table-wrap">
+          <table class="shuttle-table">
+            <thead>
+              <tr>
+                <th>차량명</th>
+                <th>차량번호</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="shuttleVehicleTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="shareLinkModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="shareLinkModalTitle">
+    <div class="members-modal members-modal--share">
+      <div class="members-modal__head">
+        <h3 id="shareLinkModalTitle">셔틀 공유 링크</h3>
+        <button type="button" class="members-modal__close" id="shareLinkModalClose" aria-label="닫기">×</button>
+      </div>
+      <div class="share-link-modal__body">
+        <p class="share-link-modal__hint">
+          아래 주소는 <strong>한 번 정해지면 바뀌지 않습니다</strong>. 노선·차량을 저장할 때마다 이 브라우저에 최신 내용이 반영되며, 학부모 화면은 <strong>새로고침</strong>하면 최신 노선을 볼 수 있습니다.
+          (다른 PC·스마트폰에서는 브라우저 저장소가 달라 노선이 비어 보일 수 있습니다. 같은 사이트에 배포해 쓰거나, 관리자와 같은 PC에서 확인해 주세요.)
+        </p>
+        <label class="share-link-modal__label" for="shareLinkUrl">공유 링크 주소</label>
+        <textarea id="shareLinkUrl" class="mb-input share-link-modal__url" readonly rows="4" spellcheck="false"></textarea>
+        <div class="share-link-modal__actions">
+          <button type="button" class="btn-shuttle-share btn-shuttle-share--modal" id="shareLinkCopy">링크 복사</button>
+          <button type="button" class="btn-mb-cancel" id="shareLinkModalClose2">닫기</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/shuttle-page.js"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>대시보드 — 제이비스포츠 관리</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar" aria-label="사이드 메뉴"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>대시보드</h2>
+          <p>JB Sports 배구센터 운영 현황 · <span id="dashTodayLabel"></span></p>
+        </div>
+
+        <section class="dashboard-stats" aria-label="주요 지표">
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--orange" aria-hidden="true">👤</div>
+            <div>
+              <p class="stat-card__value" id="statMembers">0</p>
+              <p class="stat-card__label">전체 회원 수</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--blue" aria-hidden="true">✓</div>
+            <div>
+              <p class="stat-card__value" id="statAttend">0</p>
+              <p class="stat-card__label">오늘 출석</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--yellow" aria-hidden="true">₩</div>
+            <div>
+              <p class="stat-card__value" id="statPay">₩0</p>
+              <p class="stat-card__label">이번 달 수납</p>
+            </div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-card__icon stat-card__icon--red" aria-hidden="true">!</div>
+            <div>
+              <p class="stat-card__value" id="statUnpaid">0</p>
+              <p class="stat-card__label">미납 현황</p>
+            </div>
+          </article>
+        </section>
+
+        <div class="dashboard-grid">
+          <section class="panel-card" aria-labelledby="recentTitle">
+            <h3 id="recentTitle">최근 등록 회원</h3>
+            <p class="list-empty" id="recentHint" hidden></p>
+            <div class="list-rows" id="recentList"></div>
+          </section>
+          <section class="panel-card" aria-labelledby="classTitle">
+            <h3 id="classTitle">클래스 일정</h3>
+            <p class="list-empty" id="classHint">오늘 예정된 클래스가 없습니다.</p>
+            <div class="list-rows" id="classList"></div>
+          </section>
+          <section class="panel-card" aria-labelledby="protoTitle">
+            <h3 id="protoTitle">보호대신청</h3>
+            <p style="font-size: 0.88rem; color: var(--app-shell-muted, #9aa3b2); margin: 0 0 0.65rem">
+              무릎·팔꿈치 보호대만 접수 (S/M/L). 신청서링크에 웹 접수 주소를 등록하면 학부모 신청이 명단에 반영됩니다.
+            </p>
+            <p style="margin: 0 0 0.5rem">
+              <a href="protective.html" style="color: #ff8f5a; font-weight: 800; text-decoration: none">보호대신청 관리 →</a>
+            </p>
+            <p class="list-empty" id="protoPending" style="margin: 0; font-size: 0.86rem"></p>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      JBAppShell.init({ activeNav: "dashboard", pageTitle: "제이비스포츠 관리프로그램" });
+
+      function run() {
+      JBAppShell.init({ activeNav: "dashboard", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+
+      var now = new Date();
+      var fmt = new Intl.DateTimeFormat("ko-KR", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        weekday: "long",
+      });
+      document.getElementById("dashTodayLabel").textContent = fmt.format(now);
+
+      var pendingProto = JBData.getProtectiveRequests().filter(function (x) {
+        return (x.status || "").trim() !== "수령완료";
+      }).length;
+      var protoEl = document.getElementById("protoPending");
+      if (protoEl) {
+        protoEl.textContent = pendingProto
+          ? "진행 중인 신청: " + pendingProto + "건 (미수령·접수·준비중)"
+          : "진행 중인 보호대 신청이 없습니다.";
+      }
+
+      var s = JBData.dashboardStats(now);
+      document.getElementById("statMembers").textContent = s.totalMembers + "명";
+      document.getElementById("statAttend").textContent = s.todayAttendance + "명";
+      document.getElementById("statPay").textContent =
+        "₩" + s.monthlyRevenue.toLocaleString("ko-KR");
+      document.getElementById("statUnpaid").textContent = s.unpaidCount + "건";
+
+      var recent = JBData.recentMembersRegisteredToday(now);
+      var recentList = document.getElementById("recentList");
+      var recentHint = document.getElementById("recentHint");
+      if (recent.length === 0) {
+        recentHint.hidden = false;
+        recentHint.textContent = "오늘 등록된 회원이 없습니다.";
+      } else {
+        recentHint.hidden = true;
+        recentList.innerHTML = recent
+          .map(function (m) {
+            var ch = (m.name || "?").trim().charAt(0) || "?";
+            return (
+              '<div class="list-row">' +
+              '<span class="list-row__avatar list-row__avatar--orange">' +
+              ch +
+              "</span>" +
+              '<div class="list-row__text">' +
+              m.name +
+              '<span class="list-row__sub">' +
+              (m.phone || "") +
+              "</span></div></div>"
+            );
+          })
+          .join("");
+      }
+
+      var classes = JBData.todayClassSchedule(now);
+      var classList = document.getElementById("classList");
+      var classHint = document.getElementById("classHint");
+      if (classes.length === 0) {
+        classHint.hidden = false;
+        classList.innerHTML = "";
+      } else {
+        classHint.hidden = true;
+        classList.innerHTML = classes
+          .map(function (c) {
+            var label = (c.name || "") + " [" + c.startTime + "-" + c.endTime + "]";
+            var ch = ((c.name || "일").trim().charAt(0) || "일");
+            return (
+              '<div class="list-row">' +
+              '<span class="list-row__avatar list-row__avatar--blue">' +
+              ch +
+              "</span>" +
+              '<div class="list-row__text">' +
+              label +
+              "</div></div>"
+            );
+          })
+          .join("");
+      }
+      }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

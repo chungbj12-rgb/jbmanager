@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>스튜디오 — 라이브 미리보기</title>
+  <style>
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-height: 100%; height: 100%; font-family: system-ui, "Segoe UI", "Malgun Gothic", sans-serif; }
+    body {
+      display: flex;
+      flex-direction: column;
+      background: #1a1d24;
+      color: #e8eaed;
+    }
+    .bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      padding: 0.6rem 1rem;
+      background: #0f1117;
+      border-bottom: 1px solid #2a2f3a;
+    }
+    .bar h1 {
+      margin: 0;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+    .bar .hint {
+      font-size: 0.72rem;
+      color: #8b9199;
+      flex: 1;
+      min-width: 12rem;
+    }
+    .bar button {
+      font: inherit;
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid #3d4450;
+      background: #252a35;
+      color: #fff;
+      cursor: pointer;
+    }
+    .bar button:hover { background: #323845; }
+    .bar button.primary {
+      background: #e85a28;
+      border-color: #c73d12;
+    }
+    .bar button.primary:hover { background: #ff6b35; }
+    .preview-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    /* section이 flex 컨테이너여야 .panel__body가 높이를 가져 iframe이 보임 */
+    .panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+    .panel__label {
+      flex-shrink: 0;
+      padding: 0.35rem 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #8b9199;
+      background: #14171f;
+    }
+    .panel__body {
+      flex: 1;
+      min-height: 0;
+      position: relative;
+      background: #0a0c10;
+    }
+    iframe {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: #050508;
+    }
+  </style>
+</head>
+<body>
+  <div class="bar">
+    <h1>제이비스포츠 · 라이브 미리보기</h1>
+    <span class="hint"><code style="background:#252a35;padding:0.15rem 0.35rem;border-radius:4px;">python preview_server.py</code> 또는 <code style="background:#252a35;padding:0.15rem 0.35rem;border-radius:4px;">start-studio.bat</code> — 루트의 .html / .css / .js 저장 시 자동 새로고침</span>
+    <button type="button" class="primary" id="reload">새로고침</button>
+    <button type="button" id="openIndex">index 새 탭</button>
+  </div>
+  <div class="preview-wrap">
+    <section class="panel" aria-label="라이브 미리보기">
+      <div class="panel__label">실시간 (index.html + styles.css)</div>
+      <div class="panel__body">
+        <iframe id="live" src="index.html" title="라이브 미리보기"></iframe>
+      </div>
+    </section>
+  </div>
+  <script>
+    (function () {
+      var live = document.getElementById("live");
+      function bump() {
+        live.src = "index.html?t=" + Date.now();
+      }
+      document.getElementById("reload").addEventListener("click", bump);
+      document.getElementById("openIndex").addEventListener("click", function () {
+        window.open("index.html", "_blank", "noopener");
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+{
+  "name": "jb-sports-member",
+  "private": true,
+  "scripts": {
+    "studio": "npx --yes live-server . --port=8765 --open=studio.html",
+    "shuttle-react": "npm --prefix shuttle-react run dev"
+  }
+}

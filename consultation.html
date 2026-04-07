@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>상담관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>상담관리</h2>
+          <p>상담 일지·후속 조치를 남깁니다</p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>일자</th>
+                  <th>대상</th>
+                  <th>내용</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="f">
+            <div>
+              <label class="auth-label" for="d">일자</label>
+              <input class="auth-input" id="d" type="date" />
+            </div>
+            <div>
+              <label class="auth-label" for="who">대상(이름)</label>
+              <input class="auth-input" id="who" required />
+            </div>
+            <div class="full">
+              <label class="auth-label" for="body">상담 내용</label>
+              <input class="auth-input" id="body" />
+            </div>
+            <div><button type="submit" class="btn btn--primary">추가</button></div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      function run() {
+JBAppShell.init({ activeNav: "consultation", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      document.getElementById("d").value = JBData.dateKey(new Date());
+      var tb = document.getElementById("tbody");
+
+      function render() {
+        tb.innerHTML = JBData.getConsults()
+          .slice()
+          .reverse()
+          .map(function (r) {
+            return (
+              "<tr><td>" +
+              (r.consultDate || "") +
+              "</td><td>" +
+              (r.clientName || "") +
+              "</td><td>" +
+              (r.body || "") +
+              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
+              r.id +
+              '">삭제</button></td></tr>'
+            );
+          })
+          .join("");
+      }
+
+      tb.addEventListener("click", function (e) {
+        var id = e.target.dataset && e.target.dataset.id;
+        if (!id) return;
+        e.preventDefault();
+        JBUI.confirm("이 항목을 삭제할까요?", {
+          title: "삭제 확인",
+          confirmText: "삭제",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          JBData.saveConsults(JBData.getConsults().filter(function (x) { return x.id !== id; }));
+          render();
+        });
+      });
+
+      document.getElementById("f").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var list = JBData.getConsults();
+        list.push({
+          id: "cs-" + Date.now(),
+          consultDate: document.getElementById("d").value,
+          clientName: document.getElementById("who").value.trim(),
+          body: document.getElementById("body").value.trim(),
+        });
+        JBData.saveConsults(list);
+        e.target.reset();
+        document.getElementById("d").value = JBData.dateKey(new Date());
+        render();
+      });
+      render();
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

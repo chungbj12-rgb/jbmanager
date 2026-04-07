@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>로그인 — 제이비스포츠 배구전문센터</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="page-auth-body">
+  <div class="page-auth">
+    <div class="auth-card">
+      <header class="auth-header">
+        <h1 class="auth-title">로그인</h1>
+        <p class="auth-subtitle">제이비스포츠 배구전문센터</p>
+      </header>
+
+      <div id="loginError" class="auth-banner auth-banner--error" hidden role="alert"></div>
+
+      <form id="loginForm" class="auth-form" novalidate>
+        <div class="auth-field">
+          <label class="auth-label" for="phone">전화번호</label>
+          <input class="auth-input" id="phone" name="phone" type="tel" autocomplete="tel" placeholder="010-XXXX-XXXX" required />
+        </div>
+        <div class="auth-field">
+          <label class="auth-label" for="password">비밀번호</label>
+          <input class="auth-input" id="password" name="password" type="password" autocomplete="current-password" placeholder="비밀번호" minlength="8" required />
+        </div>
+
+        <button type="submit" class="btn btn--primary btn--block">로그인</button>
+      </form>
+
+      <p class="auth-footer-link">
+        계정이 없으신가요?
+        <a href="signup.html">회원가입</a>
+      </p>
+
+      <a class="auth-back" href="index.html">
+        <span class="auth-back__icon" aria-hidden="true">←</span>
+        돌아가기
+      </a>
+    </div>
+  </div>
+
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script>
+    (function () {
+      var form = document.getElementById("loginForm");
+      var loginError = document.getElementById("loginError");
+
+      if (JBAuth.getSessionPhone()) {
+        location.replace("main.html");
+        return;
+      }
+
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        loginError.hidden = true;
+        loginError.textContent = "";
+
+        var phone = document.getElementById("phone").value;
+        var password = document.getElementById("password").value;
+
+        if (!password || password.length < 8) {
+          loginError.textContent = "비밀번호는 8자 이상 입력해주세요.";
+          loginError.hidden = false;
+          return;
+        }
+
+        var result = await JBAuth.login(phone, password);
+        if (!result.ok) {
+          loginError.textContent = result.error;
+          loginError.hidden = false;
+          return;
+        }
+
+        location.href = "main.html";
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

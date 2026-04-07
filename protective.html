@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>보호대신청 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/protective-page.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head protective-page-head">
+          <h2>보호대신청</h2>
+        </div>
+
+        <div class="protective-top-split">
+          <div class="protective-head-left">
+            <button
+              type="button"
+              class="protective-inv-add-btn"
+              id="btnOpenInvModal"
+              title="품목·사이즈별 재고 입력"
+              onclick="window.__JBOpenStockModalHard && window.__JBOpenStockModalHard()"
+            >
+              용품추가
+            </button>
+            <div class="protective-list-tabs" role="tablist" aria-label="명단 구분">
+              <button type="button" class="prot-tab prot-tab--active" id="tabProtPending" role="tab" aria-selected="true">
+                신청현황
+              </button>
+              <button type="button" class="prot-tab" id="tabProtDelivered" role="tab" aria-selected="false">전달완료</button>
+            </div>
+          </div>
+          <div class="protective-stock-summary" aria-label="보호대 재고 요약">
+            <span>무릎보호대 재고. S(<strong id="dispKneeS">0</strong>) M(<strong id="dispKneeM">0</strong>) L(<strong id="dispKneeL">0</strong>)</span>
+            <span>팔꿈치보호대 재고. S(<strong id="dispElbowS">0</strong>) M(<strong id="dispElbowM">0</strong>) L(<strong id="dispElbowL">0</strong>)</span>
+          </div>
+        </div>
+
+        <div id="editStockSection" class="protective-inv-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="editStockTitle">
+          <div class="protective-inv-dialog protective-inv-dialog--stock">
+            <div class="protective-inv-dialog__head">
+              <h4 id="editStockTitle">용품 재고 관리</h4>
+              <button type="button" class="protective-inv-dialog__close" id="stockModalClose" aria-label="닫기">×</button>
+            </div>
+            <form id="editStockForm" class="protective-stock-edit__form"></form>
+            <div class="protective-stock-edit__actions">
+              <button type="button" class="btn btn--secondary protective-inv-dialog__btn" id="cancelStockBtn">취소</button>
+              <button type="button" class="btn btn--primary protective-inv-dialog__btn" id="saveStockBtn">저장</button>
+            </div>
+          </div>
+        </div>
+
+        <section class="protective-list-card" aria-labelledby="protListTitle">
+          <h3 id="protListTitle" class="protective-list-card__title">보호대 신청자 명단</h3>
+
+          <div class="protective-list-toolbar">
+            <div class="protective-list-toolbar__right">
+              <button type="button" class="prot-btn-manual" id="btnProtManualAdd" onclick="window.__JBOpenManualModalHard && window.__JBOpenManualModalHard()">신청추가</button>
+              <span class="prot-count-total"
+                >전체 신청: <strong id="protCountNum" class="prot-count-total__num">0</strong>명</span
+              >
+              <div class="prot-search-wrap">
+                <span class="prot-search-icon" aria-hidden="true"></span>
+                <input
+                  type="search"
+                  id="protSearch"
+                  class="prot-search-input"
+                  placeholder="회원이름으로 검색"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="prot-table-wrap">
+            <table class="prot-table">
+              <thead>
+                <tr>
+                  <th scope="col" class="prot-th-check">
+                    <input type="checkbox" id="protSelectAll" aria-label="전체 선택" />
+                  </th>
+                  <th scope="col">이름</th>
+                  <th scope="col">전화번호</th>
+                  <th scope="col">무료보호대</th>
+                  <th scope="col">팔꿈치보호대</th>
+                  <th scope="col">입금여부</th>
+                  <th scope="col">전달여부</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+            <p id="protEmptyState" class="prot-empty" hidden>검색 결과가 없습니다.</p>
+          </div>
+        </section>
+
+        <div id="protManualModal" class="protective-inv-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="protManualTitle">
+          <div class="protective-inv-dialog protective-inv-dialog--manual">
+            <div class="protective-inv-dialog__head">
+              <h4 id="protManualTitle">수동 등록</h4>
+              <button type="button" class="protective-inv-dialog__close" id="protManualClose" aria-label="닫기">×</button>
+            </div>
+            <form class="prot-manual-form" id="f">
+              <div class="prot-manual-form__grid">
+                <div>
+                  <label class="auth-label" for="who">신청자</label>
+                  <input class="auth-input" id="who" required />
+                </div>
+                <div>
+                  <label class="auth-label" for="phone">연락처</label>
+                  <input class="auth-input" id="phone" placeholder="010-0000-0000" />
+                </div>
+                <div>
+                  <label class="auth-label" for="kneeSize">무릎보호대 사이즈</label>
+                  <select class="auth-input auth-select" id="kneeSize">
+                    <option value="">선택 안함</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="auth-label" for="kneeQty">무릎보호대 수량</label>
+                  <input class="auth-input" id="kneeQty" type="number" min="0" step="1" value="0" />
+                </div>
+                <div>
+                  <label class="auth-label" for="elbowSize">팔꿈치보호대 사이즈</label>
+                  <select class="auth-input auth-select" id="elbowSize">
+                    <option value="">선택 안함</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="auth-label" for="elbowQty">팔꿈치보호대 수량</label>
+                  <input class="auth-input" id="elbowQty" type="number" min="0" step="1" value="0" />
+                </div>
+                <div>
+                  <label class="auth-label" for="kneeAmount">무릎보호대 금액</label>
+                  <input class="auth-input" id="kneeAmount" readonly value="0원" />
+                </div>
+                <div>
+                  <label class="auth-label" for="elbowAmount">팔꿈치보호대 금액</label>
+                  <input class="auth-input" id="elbowAmount" readonly value="0원" />
+                </div>
+                <div>
+                  <label class="auth-label" for="totalAmount">총 신청금액</label>
+                  <input class="auth-input" id="totalAmount" readonly value="0원" />
+                </div>
+              </div>
+              <div class="prot-manual-form__actions">
+                <button type="button" class="btn btn--secondary protective-inv-dialog__btn" id="protManualCancel">취소</button>
+                <button type="submit" class="btn btn--primary protective-inv-dialog__btn">신청</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/protective-page.js"></script>
+  <script>
+    (function () {
+      function renderStockForm(inv) {
+        var form = document.getElementById("editStockForm");
+        if (!form) return;
+        var sizes = ["S", "M", "L"];
+        form.innerHTML =
+          '<div class="protective-stock-edit__group-title">무릎보호대 재고</div>' +
+          sizes.map(function (s) {
+            return (
+              '<div class="protective-stock-edit__row">' +
+              '<label for="stock_knee_' + s + '">' + s + '사이즈</label>' +
+              '<input class="auth-input" type="number" min="0" step="1" id="stock_knee_' + s + '" name="knee_' + s + '" value="' + String((inv.knee && inv.knee[s]) || 0) + '" />' +
+              "</div>"
+            );
+          }).join("") +
+          '<div class="protective-stock-edit__group-title">팔꿈치보호대 재고</div>' +
+          sizes.map(function (s) {
+            return (
+              '<div class="protective-stock-edit__row">' +
+              '<label for="stock_elbow_' + s + '">' + s + '사이즈</label>' +
+              '<input class="auth-input" type="number" min="0" step="1" id="stock_elbow_' + s + '" name="elbow_' + s + '" value="' + String((inv.elbow && inv.elbow[s]) || 0) + '" />' +
+              "</div>"
+            );
+          }).join("");
+      }
+
+      function readInv() {
+        if (window.JBData && JBData.getProtectiveInventory) {
+          return JBData.getProtectiveInventory();
+        }
+        return { knee: { S: 0, M: 0, L: 0 }, elbow: { S: 0, M: 0, L: 0 } };
+      }
+
+      function writeInv(inv) {
+        if (window.JBData && JBData.saveProtectiveInventory) {
+          JBData.saveProtectiveInventory(inv);
+        }
+        var map = {
+          dispKneeS: inv.knee.S, dispKneeM: inv.knee.M, dispKneeL: inv.knee.L,
+          dispElbowS: inv.elbow.S, dispElbowM: inv.elbow.M, dispElbowL: inv.elbow.L
+        };
+        Object.keys(map).forEach(function (id) {
+          var el = document.getElementById(id);
+          if (el) el.textContent = String(map[id]);
+        });
+      }
+
+      window.__JBOpenStockModalHard = function () {
+        var modal = document.getElementById("editStockSection");
+        if (!modal) return;
+        renderStockForm(readInv());
+        modal.hidden = false;
+        document.body.classList.add("modal-open");
+      };
+
+      function closeStockModalHard() {
+        var modal = document.getElementById("editStockSection");
+        if (!modal) return;
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
+      }
+
+      function closeManualModalHard() {
+        var modal = document.getElementById("protManualModal");
+        if (!modal) return;
+        modal.hidden = true;
+        document.body.classList.remove("modal-open");
+      }
+
+      window.__JBOpenManualModalHard = function () {
+        var modal = document.getElementById("protManualModal");
+        if (!modal) return;
+        var kneeQty = document.getElementById("kneeQty");
+        var elbowQty = document.getElementById("elbowQty");
+        var kneeSize = document.getElementById("kneeSize");
+        var elbowSize = document.getElementById("elbowSize");
+        if (kneeQty) kneeQty.value = "0";
+        if (elbowQty) elbowQty.value = "0";
+        if (kneeSize) kneeSize.value = "";
+        if (elbowSize) elbowSize.value = "";
+        var kneeAmount = document.getElementById("kneeAmount");
+        var elbowAmount = document.getElementById("elbowAmount");
+        var totalAmount = document.getElementById("totalAmount");
+        if (kneeAmount) kneeAmount.value = "0원";
+        if (elbowAmount) elbowAmount.value = "0원";
+        if (totalAmount) totalAmount.value = "0원";
+        modal.hidden = false;
+        document.body.classList.add("modal-open");
+      };
+
+      function seed5() {
+        if (!(window.JBData && JBData.getProtectiveRequests && JBData.saveProtectiveRequests)) return;
+        var list = JBData.getProtectiveRequests();
+        if (Array.isArray(list) && list.length > 0) return;
+        var today = (JBData.dateKey && JBData.dateKey(new Date())) || "";
+        JBData.saveProtectiveRequests([
+          { id: "demo-1", applicantName: "김민준", studentName: "", phone: "010-2345-7811", productType: "knee", size: "S", itemSpec: "무릎보호대 · S", requestDate: today, status: "접수", source: "admin", createdAt: new Date().toISOString(), paid: false, delivered: false },
+          { id: "demo-2", applicantName: "이서연", studentName: "", phone: "010-4451-2290", productType: "elbow", size: "M", itemSpec: "팔꿈치보호대 · M", requestDate: today, status: "접수", source: "admin", createdAt: new Date().toISOString(), paid: false, delivered: false },
+          { id: "demo-3", applicantName: "박지호", studentName: "", phone: "010-7722-1184", productType: "knee", size: "L", itemSpec: "무릎보호대 · L", requestDate: today, status: "접수", source: "admin", createdAt: new Date().toISOString(), paid: false, delivered: false },
+          { id: "demo-4", applicantName: "최유나", studentName: "", phone: "010-9081-6632", productType: "elbow", size: "S", itemSpec: "팔꿈치보호대 · S", requestDate: today, status: "접수", source: "admin", createdAt: new Date().toISOString(), paid: false, delivered: false },
+          { id: "demo-5", applicantName: "정도윤", studentName: "", phone: "010-5512-9407", productType: "knee", size: "M", itemSpec: "무릎보호대 · M", requestDate: today, status: "접수", source: "admin", createdAt: new Date().toISOString(), paid: false, delivered: false }
+        ]);
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        seed5();
+        var btn = document.getElementById("btnOpenInvModal");
+        if (btn) btn.addEventListener("click", window.__JBOpenStockModalHard);
+        var closeBtn = document.getElementById("stockModalClose");
+        if (closeBtn) closeBtn.addEventListener("click", closeStockModalHard);
+        var cancelBtn = document.getElementById("cancelStockBtn");
+        if (cancelBtn) cancelBtn.addEventListener("click", closeStockModalHard);
+        var modal = document.getElementById("editStockSection");
+        if (modal) modal.addEventListener("click", function (e) { if (e.target === modal) closeStockModalHard(); });
+        var saveBtn = document.getElementById("saveStockBtn");
+        if (saveBtn) saveBtn.addEventListener("click", function () {
+          var fd = new FormData(document.getElementById("editStockForm"));
+          function n(k) { var v = parseInt(String(fd.get(k) || "0"), 10); return isNaN(v) || v < 0 ? 0 : v; }
+          var inv = readInv();
+          inv.knee.S = n("knee_S"); inv.knee.M = n("knee_M"); inv.knee.L = n("knee_L");
+          inv.elbow.S = n("elbow_S"); inv.elbow.M = n("elbow_M"); inv.elbow.L = n("elbow_L");
+          writeInv(inv);
+          closeStockModalHard();
+        });
+        function syncManualAmountHard() {
+          var kneeQty = parseInt(String((document.getElementById("kneeQty") || {}).value || "0"), 10);
+          var elbowQty = parseInt(String((document.getElementById("elbowQty") || {}).value || "0"), 10);
+          if (isNaN(kneeQty) || kneeQty < 0) kneeQty = 0;
+          if (isNaN(elbowQty) || elbowQty < 0) elbowQty = 0;
+          var kneeAmount = kneeQty * 18000;
+          var elbowAmount = elbowQty * 20000;
+          var totalAmount = kneeAmount + elbowAmount;
+          if (document.getElementById("kneeAmount")) document.getElementById("kneeAmount").value = kneeAmount.toLocaleString("ko-KR") + "원";
+          if (document.getElementById("elbowAmount")) document.getElementById("elbowAmount").value = elbowAmount.toLocaleString("ko-KR") + "원";
+          if (document.getElementById("totalAmount")) document.getElementById("totalAmount").value = totalAmount.toLocaleString("ko-KR") + "원";
+        }
+        var kneeQtyInput = document.getElementById("kneeQty");
+        var elbowQtyInput = document.getElementById("elbowQty");
+        if (kneeQtyInput) kneeQtyInput.addEventListener("input", syncManualAmountHard);
+        if (elbowQtyInput) elbowQtyInput.addEventListener("input", syncManualAmountHard);
+
+        setTimeout(function () {
+          if (window.__JBProtectiveReady) return;
+          var manualBtn = document.getElementById("btnProtManualAdd");
+          if (manualBtn) manualBtn.addEventListener("click", window.__JBOpenManualModalHard);
+          var manualClose = document.getElementById("protManualClose");
+          if (manualClose) manualClose.addEventListener("click", closeManualModalHard);
+          var manualCancel = document.getElementById("protManualCancel");
+          if (manualCancel) manualCancel.addEventListener("click", closeManualModalHard);
+          var manualModal = document.getElementById("protManualModal");
+          if (manualModal) manualModal.addEventListener("click", function (e) { if (e.target === manualModal) closeManualModalHard(); });
+
+          var form = document.getElementById("f");
+          if (!form || form.__jbHardBound) return;
+          form.__jbHardBound = true;
+          form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            if (!(window.JBData && JBData.getProtectiveRequests && JBData.saveProtectiveRequests && JBData.dateKey)) return;
+            var who = (document.getElementById("who").value || "").trim();
+            if (!who) return;
+            var phone = (document.getElementById("phone").value || "").trim();
+            var d = JBData.dateKey(new Date());
+            var st = "접수";
+            var delivered = st === "수령완료";
+            var kneeSize = document.getElementById("kneeSize").value;
+            var elbowSize = document.getElementById("elbowSize").value;
+            var kneeQty = parseInt(String(document.getElementById("kneeQty").value || "0"), 10);
+            var elbowQty = parseInt(String(document.getElementById("elbowQty").value || "0"), 10);
+            if (isNaN(kneeQty) || kneeQty < 0) kneeQty = 0;
+            if (isNaN(elbowQty) || elbowQty < 0) elbowQty = 0;
+            if ((kneeQty > 0 && !kneeSize) || (elbowQty > 0 && !elbowSize)) return;
+            if (kneeQty + elbowQty < 1) return;
+            var list = JBData.getProtectiveRequests().slice();
+            function pushRows(type, size, qty) {
+              for (var i = 0; i < qty; i++) {
+                list.push({
+                  id: "hard-pr-" + Date.now() + "-" + type + "-" + i,
+                  applicantName: who,
+                  studentName: "",
+                  phone: phone,
+                  productType: type,
+                  size: size,
+                  itemSpec: (type === "knee" ? "무릎보호대" : "팔꿈치보호대") + " · " + size,
+                  requestDate: d,
+                  status: st,
+                  source: "admin",
+                  createdAt: new Date().toISOString(),
+                  paid: false,
+                  delivered: delivered
+                });
+              }
+            }
+            if (kneeQty > 0) pushRows("knee", kneeSize, kneeQty);
+            if (elbowQty > 0) pushRows("elbow", elbowSize, elbowQty);
+            JBData.saveProtectiveRequests(list);
+            closeManualModalHard();
+            location.reload();
+          });
+        }, 150);
+      });
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

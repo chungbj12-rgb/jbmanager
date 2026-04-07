@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>일정관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/notion-editor.css" />
+  <style>
+    .schedule-shell { color: #e7ecf8; }
+    .schedule-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .schedule-title { margin: 0; font-size: 2rem; font-weight: 800; }
+    .schedule-topbar {
+      display: grid; grid-template-columns: auto 1fr auto; align-items: center;
+      gap: 0.8rem; margin-bottom: 0.6rem;
+    }
+    .schedule-nav { display: flex; align-items: center; gap: 0.4rem; }
+    .schedule-nav-btn, .schedule-today-btn {
+      border: 1px solid rgba(255,255,255,0.15); background: rgba(255,255,255,0.04);
+      color: #dce3f4; border-radius: 8px; padding: 0.32rem 0.7rem; font-weight: 700; cursor: pointer;
+    }
+    .schedule-month-label { justify-self: start; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.01em; }
+    .schedule-add-btn {
+      border: 0; background: #69db7c; color: #122117; font-weight: 800; border-radius: 10px;
+      padding: 0.5rem 1rem; cursor: pointer;
+    }
+    .schedule-grid-wrap {
+      border: 1px solid rgba(255,255,255,0.12); border-radius: 10px; overflow: hidden;
+      background: rgba(5,10,25,0.86);
+    }
+    .schedule-dow { display: grid; grid-template-columns: repeat(7, 1fr); background: rgba(255,255,255,0.03); }
+    .schedule-dow span { padding: 0.42rem 0.5rem; font-size: 0.75rem; text-align: center; color: #8f9fbb; font-weight: 700; }
+    .schedule-dow span:first-child { color: #ff7d7d; } .schedule-dow span:last-child { color: #7aa7ff; }
+    .schedule-grid { display: grid; grid-template-columns: repeat(7, 1fr); grid-auto-rows: 98px; }
+    .schedule-cell {
+      border-top: 1px solid rgba(255,255,255,0.08); border-right: 1px solid rgba(255,255,255,0.08);
+      padding: 0.32rem 0.34rem; cursor: pointer; position: relative;
+    }
+    .schedule-cell:nth-child(7n) { border-right: none; }
+    .schedule-day { width: 1.55rem; height: 1.55rem; border-radius: 999px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.76rem; font-weight: 800; color: #e9eef8; }
+    .is-other-month .schedule-day { color: rgba(233,238,248,0.35); }
+    .is-selected .schedule-day { background: #ff7f45; color: #fff; }
+    .schedule-items { margin-top: 0.28rem; display: flex; flex-direction: column; gap: 0.16rem; }
+    .schedule-item { font-size: 0.67rem; color: #d6deee; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .schedule-empty {
+      padding: 0.9rem; text-align: center; color: #8f9fbb; font-size: 0.88rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .schedule-editor-overlay {
+      position: fixed; inset: 0; z-index: 440; background: rgba(0,0,0,0.55);
+      display: flex; align-items: center; justify-content: center; padding: 1rem;
+    }
+    .schedule-editor-overlay[hidden] { display: none !important; }
+    .schedule-editor-card {
+      width: min(880px, 96vw); border-radius: 12px; background: #0f1527;
+      border: 1px solid rgba(255,255,255,0.15); box-shadow: 0 18px 48px rgba(0,0,0,0.5);
+      padding: 0.9rem;
+    }
+    .schedule-editor-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.55rem; }
+    .schedule-editor-head h3 { margin: 0; font-size: 1rem; }
+    .schedule-editor-close { border: 0; background: transparent; color: #b6bfd3; font-size: 1.2rem; cursor: pointer; }
+    .schedule-editor-meta { display: grid; grid-template-columns: 140px 1fr; gap: 0.55rem; margin-bottom: 0.55rem; }
+    .schedule-editor-actions { display: flex; justify-content: flex-end; gap: 0.5rem; margin-top: 0.65rem; }
+  </style>
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="schedule-shell">
+          <div class="schedule-head">
+            <h2 class="schedule-title">일정관리</h2>
+          </div>
+          <div class="schedule-topbar">
+            <div class="schedule-nav">
+              <button type="button" class="schedule-nav-btn" id="btnPrevMonth">‹</button>
+              <button type="button" class="schedule-nav-btn" id="btnNextMonth">›</button>
+              <button type="button" class="schedule-today-btn" id="btnToday">오늘</button>
+            </div>
+            <div class="schedule-month-label" id="monthLabel">2026년 04월</div>
+            <div style="text-align:right">
+              <button type="button" class="schedule-add-btn" id="btnOpenScheduleEditor">+ 일정 추가</button>
+            </div>
+          </div>
+          <div class="schedule-grid-wrap">
+            <div class="schedule-dow">
+              <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
+            </div>
+            <div class="schedule-grid" id="scheduleGrid"></div>
+          </div>
+          <p class="schedule-empty" id="selectedDateSummary"></p>
+        </div>
+
+        <div class="schedule-editor-overlay" id="scheduleEditorOverlay" hidden role="dialog" aria-modal="true" aria-labelledby="scheduleEditorTitle">
+          <div class="schedule-editor-card">
+            <div class="schedule-editor-head">
+              <h3 id="scheduleEditorTitle">일정 등록</h3>
+              <button type="button" class="schedule-editor-close" id="btnCloseScheduleEditor">×</button>
+            </div>
+            <div class="schedule-editor-meta">
+              <div>
+                <label class="auth-label" for="scheduleDateInput">일자</label>
+                <input class="auth-input" id="scheduleDateInput" type="date" />
+              </div>
+              <div>
+                <label class="auth-label" for="scheduleTitleInput">제목</label>
+                <input class="auth-input" id="scheduleTitleInput" placeholder="예: 학부모 상담 주간" />
+              </div>
+            </div>
+            <div class="notion-editor-wrap" id="scheduleEditorWrap"></div>
+            <div class="schedule-editor-actions">
+              <button type="button" class="btn btn--secondary" id="btnCancelSchedule">취소</button>
+              <button type="button" class="btn btn--primary" id="btnSaveSchedule">저장</button>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script type="module">
+    function pad2(n) { return String(n).padStart(2, "0"); }
+    function toDateKey(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+    function ymLabel(y, m0) { return y + "년 " + pad2(m0 + 1) + "월"; }
+
+    function dateFromKey(key) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(key || "");
+      if (!m) return null;
+      return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]));
+    }
+
+    function getCellStartDate(year, month0) {
+      var first = new Date(year, month0, 1);
+      return new Date(year, month0, 1 - first.getDay());
+    }
+
+    function normalizeEventTitle(ev) {
+      if (ev.title && String(ev.title).trim()) return String(ev.title).trim();
+      if (ev.note && String(ev.note).trim()) return String(ev.note).trim();
+      return "일정";
+    }
+
+    function run() {
+      JBAppShell.init({ activeNav: "schedule", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+
+      var today = new Date();
+      var state = {
+        currentYear: today.getFullYear(),
+        currentMonth0: today.getMonth(),
+        selectedDate: toDateKey(today),
+        isAddingSchedule: false,
+      };
+
+      var monthLabel = document.getElementById("monthLabel");
+      var grid = document.getElementById("scheduleGrid");
+      var summary = document.getElementById("selectedDateSummary");
+      var overlay = document.getElementById("scheduleEditorOverlay");
+      var dateInput = document.getElementById("scheduleDateInput");
+      var titleInput = document.getElementById("scheduleTitleInput");
+      var editorWrap = document.getElementById("scheduleEditorWrap");
+      var editorApi = null;
+      var editorLoaded = false;
+      var isPlainFallback = false;
+
+      function emptyDoc() {
+        return { type: "doc", content: [{ type: "paragraph" }] };
+      }
+
+      function escapeHtml(s) {
+        return String(s == null ? "" : s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+
+      async function ensureEditor() {
+        if (editorLoaded) return;
+        editorWrap.innerHTML = "";
+        try {
+          var mod = await import("./js/notion-editor.mjs");
+          editorApi = mod.mountNotionEditorUI(editorWrap, {
+            placeholder: "일정 내용을 작성하세요.",
+            initialDoc: mod.emptyDoc(),
+          });
+          editorLoaded = true;
+          isPlainFallback = false;
+        } catch (err) {
+          if (window.JBUI && JBUI.toast) {
+            JBUI.toast("리치 에디터 로드에 실패해 기본 입력 모드로 전환되었습니다.", "err");
+          }
+          isPlainFallback = true;
+          editorWrap.innerHTML =
+            '<textarea id="schedulePlainEditor" class="auth-input" style="width:100%;min-height:220px;resize:vertical" placeholder="일정 내용을 입력하세요."></textarea>';
+          editorLoaded = true;
+        }
+      }
+
+      function getEventsByDate() {
+        var map = {};
+        JBData.getEvents().forEach(function (ev) {
+          var k = ev.eventDate || "";
+          if (!k) return;
+          if (!map[k]) map[k] = [];
+          map[k].push(ev);
+        });
+        return map;
+      }
+
+      async function openEditor() {
+        await ensureEditor();
+        if (!isPlainFallback && editorApi) editorApi.setDoc(emptyDoc());
+        if (isPlainFallback) {
+          var ta = document.getElementById("schedulePlainEditor");
+          if (ta) ta.value = "";
+        }
+        state.isAddingSchedule = true;
+        dateInput.value = state.selectedDate;
+        titleInput.value = "";
+        overlay.hidden = false;
+        document.body.classList.add("modal-open");
+      }
+
+      function closeEditor() {
+        state.isAddingSchedule = false;
+        overlay.hidden = true;
+        document.body.classList.remove("modal-open");
+      }
+
+      function saveSchedule() {
+        var key = dateInput.value || state.selectedDate;
+        var title = (titleInput.value || "").trim();
+        var doc = emptyDoc();
+        var plain = "";
+        if (!isPlainFallback && editorApi) {
+          doc = editorApi.getDoc();
+        } else {
+          var ta = document.getElementById("schedulePlainEditor");
+          plain = ta ? (ta.value || "").trim() : "";
+        }
+        var list = JBData.getEvents().slice();
+        list.push({
+          id: "ev-" + Date.now(),
+          eventDate: key,
+          title: title || "일정",
+          location: "",
+          note: plain,
+          contentDoc: doc,
+          createdAt: new Date().toISOString(),
+        });
+        JBData.saveEvents(list);
+        state.selectedDate = key;
+        var d = dateFromKey(key);
+        if (d) {
+          state.currentYear = d.getFullYear();
+          state.currentMonth0 = d.getMonth();
+        }
+        closeEditor();
+        render();
+      }
+
+      function render() {
+        monthLabel.textContent = ymLabel(state.currentYear, state.currentMonth0);
+        var byDate = getEventsByDate();
+        var selectedItems = byDate[state.selectedDate] || [];
+        summary.textContent = state.selectedDate + " · 일정 " + selectedItems.length + "건";
+
+        var start = getCellStartDate(state.currentYear, state.currentMonth0);
+        var html = "";
+        for (var i = 0; i < 42; i++) {
+          var d = new Date(start.getFullYear(), start.getMonth(), start.getDate() + i);
+          var key = toDateKey(d);
+          var items = byDate[key] || [];
+          var isOther = d.getMonth() !== state.currentMonth0;
+          var isSel = key === state.selectedDate;
+          var cls = "schedule-cell" + (isOther ? " is-other-month" : "") + (isSel ? " is-selected" : "");
+          var itemHtml = items.slice(0, 3).map(function (ev) {
+            return '<div class="schedule-item">' + escapeHtml(normalizeEventTitle(ev)) + "</div>";
+          }).join("");
+          if (items.length > 3) itemHtml += '<div class="schedule-item">+' + (items.length - 3) + "건</div>";
+          html += '<div class="' + cls + '" data-date="' + key + '"><span class="schedule-day">' + d.getDate() + '</span><div class="schedule-items">' + itemHtml + "</div></div>";
+        }
+        grid.innerHTML = html;
+      }
+
+      document.getElementById("btnPrevMonth").addEventListener("click", function () {
+        var d = new Date(state.currentYear, state.currentMonth0 - 1, 1);
+        state.currentYear = d.getFullYear();
+        state.currentMonth0 = d.getMonth();
+        render();
+      });
+      document.getElementById("btnNextMonth").addEventListener("click", function () {
+        var d = new Date(state.currentYear, state.currentMonth0 + 1, 1);
+        state.currentYear = d.getFullYear();
+        state.currentMonth0 = d.getMonth();
+        render();
+      });
+      document.getElementById("btnToday").addEventListener("click", function () {
+        var now = new Date();
+        state.currentYear = now.getFullYear();
+        state.currentMonth0 = now.getMonth();
+        state.selectedDate = toDateKey(now);
+        render();
+      });
+
+      grid.addEventListener("click", function (e) {
+        var cell = e.target.closest(".schedule-cell");
+        if (!cell) return;
+        state.selectedDate = cell.getAttribute("data-date");
+        render();
+      });
+
+      document.getElementById("btnOpenScheduleEditor").addEventListener("click", openEditor);
+      document.getElementById("btnCloseScheduleEditor").addEventListener("click", closeEditor);
+      document.getElementById("btnCancelSchedule").addEventListener("click", closeEditor);
+      document.getElementById("btnSaveSchedule").addEventListener("click", saveSchedule);
+      overlay.addEventListener("click", function (e) {
+        if (e.target === overlay) closeEditor();
+      });
+
+      window.addEventListener("jb-remote-update", function (ev) {
+        var k = ev.detail && ev.detail.key;
+        if (k === "jb_events_v1") render();
+      });
+
+      render();
+    }
+
+    if (JBAuth.waitForSession) JBAuth.waitForSession().then(run);
+    else run();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

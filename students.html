@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>학생관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>학생관리</h2>
+          <p>등록된 학생 목록 · 상세 링크로 공유할 수 있습니다</p>
+        </div>
+        <div class="data-toolbar">
+          <a class="btn btn--primary" href="student-form.html">학생 등록</a>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>생년월일</th>
+                  <th>연락처</th>
+                  <th>학교</th>
+                  <th>수정일</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      function run() {
+JBAppShell.init({ activeNav: "members", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var tb = document.getElementById("tbody");
+      var list = JBContentApi.students.list();
+      if (list.length === 0) {
+        tb.innerHTML =
+          '<tr><td colspan="6" class="list-empty" style="padding:1.5rem">등록된 학생이 없습니다. 상단에서 학생을 등록해 주세요.</td></tr>';
+        return;
+      }
+      tb.innerHTML = list
+        .map(function (s) {
+          var u = s.updatedAt ? new Date(s.updatedAt).toLocaleDateString("ko-KR") : "—";
+          return (
+            "<tr><td>" +
+            (s.name || "") +
+            "</td><td>" +
+            (s.birth || "") +
+            "</td><td>" +
+            (s.phone || "") +
+            "</td><td>" +
+            (s.school || "") +
+            "</td><td>" +
+            u +
+            '</td><td class="cell-actions">' +
+            '<a class="linkish" href="' +
+            JBContentApi.students.detailHref(s.id) +
+            '">상세</a> ' +
+            '<a class="linkish" href="' +
+            JBContentApi.students.formHref(s.id) +
+            '">수정</a> ' +
+            '<button type="button" class="linkish" data-del="' +
+            s.id +
+            '">삭제</button></td></tr>'
+          );
+        })
+        .join("");
+      tb.addEventListener("click", function (e) {
+        var del = e.target.dataset && e.target.dataset.del;
+        if (!del) return;
+        e.preventDefault();
+        JBUI.confirm("이 항목을 삭제할까요?", {
+          title: "삭제 확인",
+          confirmText: "삭제",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          JBContentApi.students.remove(del);
+          location.reload();
+        });
+      });
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

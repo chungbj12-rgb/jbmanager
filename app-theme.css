@@ -1,0 +1,122 @@
+/* 전역 테마 (JBPreferences + data-theme). :root의 --text-*는 html[data-theme]로 덮어씀 */
+
+html {
+  color-scheme: dark;
+  --app-shell-bg: #080a0f;
+  --app-shell-text: #f8f8f8;
+  --app-shell-muted: #8b9199;
+  --app-sidebar-bg: linear-gradient(180deg, #0d1018 0%, #0a0c12 100%);
+  --app-sidebar-border: rgba(255, 255, 255, 0.06);
+  --app-sidebar-brand-border: rgba(255, 255, 255, 0.06);
+  --app-nav-link: #b4c2d6;
+  --app-nav-hover-bg: rgba(232, 90, 40, 0.08);
+  --app-nav-hover-color: #f8f8f8;
+  --app-nav-active-bg: rgba(232, 90, 40, 0.22);
+  --app-nav-active-color: var(--orange-bright, #ff6b35);
+  --app-column-bg: linear-gradient(165deg, #0e1118 0%, #080a0f 42%, #06070c 100%);
+  --app-topbar-bg: rgba(8, 10, 15, 0.85);
+  --app-topbar-border: rgba(255, 255, 255, 0.06);
+  --app-panel-bg: rgba(22, 24, 34, 0.85);
+  --app-panel-border: rgba(255, 255, 255, 0.06);
+  --app-panel-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  --app-stat-bg: rgba(22, 24, 34, 0.85);
+  --app-stat-border: rgba(255, 255, 255, 0.06);
+  --app-data-card-bg: rgba(22, 24, 34, 0.85);
+  --app-data-card-border: rgba(255, 255, 255, 0.06);
+  --app-table-th-bg: rgba(0, 0, 0, 0.25);
+  --app-table-border: rgba(255, 255, 255, 0.06);
+  --app-table-row-hover: rgba(255, 255, 255, 0.02);
+  --app-list-row-border: rgba(255, 255, 255, 0.04);
+  --app-inline-form-bg: rgba(0, 0, 0, 0.15);
+  --app-inline-form-border: rgba(255, 255, 255, 0.06);
+  --app-user-dropdown-bg: #151821;
+  --app-user-dropdown-border: rgba(255, 255, 255, 0.08);
+  --app-user-dropdown-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  --app-menu-toggle-border: rgba(255, 255, 255, 0.1);
+  --app-menu-toggle-bg: rgba(255, 255, 255, 0.04);
+  --app-menu-toggle-color: #f8f8f8;
+  --app-user-trigger-border: rgba(255, 255, 255, 0.08);
+  --app-user-trigger-bg: rgba(255, 255, 255, 0.03);
+  --app-user-item-hover: rgba(255, 255, 255, 0.06);
+  --app-chk-label: #c5c9d0;
+  --app-sidebar-mobile-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
+  --app-overlay: rgba(0, 0, 0, 0.5);
+}
+
+html[data-theme="light"] {
+  color-scheme: light;
+  --text-white: #111827;
+  --text-muted: #5b6470;
+  --app-shell-bg: #f0f2f5;
+  --app-shell-text: #111827;
+  --app-shell-muted: #5b6470;
+  --app-sidebar-bg: linear-gradient(180deg, #ffffff 0%, #f3f4f6 100%);
+  --app-sidebar-border: rgba(15, 23, 42, 0.1);
+  --app-sidebar-brand-border: rgba(15, 23, 42, 0.1);
+  --app-nav-link: #374151;
+  --app-nav-hover-bg: rgba(232, 90, 40, 0.12);
+  --app-nav-hover-color: #111827;
+  --app-nav-active-bg: rgba(232, 90, 40, 0.2);
+  --app-nav-active-color: #c73d12;
+  --app-column-bg: linear-gradient(165deg, #fafbfc 0%, #f0f2f5 42%, #e8eaed 100%);
+  --app-topbar-bg: rgba(255, 255, 255, 0.94);
+  --app-topbar-border: rgba(15, 23, 42, 0.1);
+  --app-panel-bg: #ffffff;
+  --app-panel-border: rgba(15, 23, 42, 0.1);
+  --app-panel-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  --app-stat-bg: #ffffff;
+  --app-stat-border: rgba(15, 23, 42, 0.1);
+  --app-data-card-bg: #ffffff;
+  --app-data-card-border: rgba(15, 23, 42, 0.1);
+  --app-table-th-bg: rgba(241, 245, 249, 0.98);
+  --app-table-border: rgba(15, 23, 42, 0.08);
+  --app-table-row-hover: rgba(15, 23, 42, 0.04);
+  --app-list-row-border: rgba(15, 23, 42, 0.08);
+  --app-inline-form-bg: rgba(241, 245, 249, 0.95);
+  --app-inline-form-border: rgba(15, 23, 42, 0.08);
+  --app-user-dropdown-bg: #ffffff;
+  --app-user-dropdown-border: rgba(15, 23, 42, 0.1);
+  --app-user-dropdown-shadow: 0 12px 40px rgba(15, 23, 42, 0.12);
+  --app-menu-toggle-border: rgba(15, 23, 42, 0.15);
+  --app-menu-toggle-bg: rgba(255, 255, 255, 0.95);
+  --app-menu-toggle-color: #111827;
+  --app-user-trigger-border: rgba(15, 23, 42, 0.12);
+  --app-user-trigger-bg: rgba(255, 255, 255, 0.95);
+  --app-user-item-hover: rgba(15, 23, 42, 0.06);
+  --app-chk-label: #374151;
+  --app-sidebar-mobile-shadow: 8px 0 32px rgba(15, 23, 42, 0.15);
+  --app-overlay: rgba(15, 23, 42, 0.35);
+}
+
+body.app-body {
+  background: var(--app-shell-bg);
+  color: var(--app-shell-text);
+}
+
+body.app-body .app-page-head p,
+body.app-body .list-empty {
+  color: var(--app-shell-muted);
+}
+
+body.app-body .app-page-head h2 {
+  color: var(--app-shell-text);
+}
+
+html[data-theme="light"] body.app-body .btn--secondary {
+  background: #ffffff;
+  color: #c73d12;
+  border-color: var(--orange, #e85a28);
+  box-shadow:
+    0 2px 0 rgba(15, 23, 42, 0.08),
+    0 4px 12px rgba(15, 23, 42, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+html[data-theme="light"] body.app-body .btn--secondary:hover {
+  background: rgba(232, 90, 40, 0.1);
+  color: #b8320e;
+}
+
+body.app-body .stat-card__value {
+  color: var(--app-shell-text);
+}

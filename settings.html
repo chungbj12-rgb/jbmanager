@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>설정 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/settings-page.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>설정</h2>
+          <p>테마·글씨 크기·메뉴 순서 및 운영 데이터</p>
+        </div>
+
+        <div class="settings-stack">
+          <section class="settings-card" aria-labelledby="settingsThemeTitle">
+            <h3 id="settingsThemeTitle">테마 설정</h3>
+            <p class="settings-card__lead">화면 전체에 즉시 적용되며 브라우저에 저장됩니다.</p>
+            <div class="settings-options" role="radiogroup" aria-label="테마">
+              <label class="settings-option">
+                <input type="radio" name="themePref" value="light" />
+                <span>화이트 모드<small>밝은 배경, 어두운 글자</small></span>
+              </label>
+              <label class="settings-option">
+                <input type="radio" name="themePref" value="dark" />
+                <span>다크 모드<small>어두운 배경, 밝은 글자</small></span>
+              </label>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settingsFontTitle">
+            <h3 id="settingsFontTitle">글씨 크기</h3>
+            <p class="settings-card__lead">기본 화면(100%)을 기준으로 전체 글자 비율을 조절합니다.</p>
+            <div class="settings-options" role="radiogroup" aria-label="글씨 크기">
+              <label class="settings-option">
+                <input type="radio" name="fontPref" value="xs" />
+                <span>매우 작게 (80%)</span>
+              </label>
+              <label class="settings-option">
+                <input type="radio" name="fontPref" value="sm" />
+                <span>작게 (90%)</span>
+              </label>
+              <label class="settings-option">
+                <input type="radio" name="fontPref" value="md" />
+                <span>보통 (100%) — 기본</span>
+              </label>
+              <label class="settings-option">
+                <input type="radio" name="fontPref" value="lg" />
+                <span>크게 (110%)</span>
+              </label>
+              <label class="settings-option">
+                <input type="radio" name="fontPref" value="xl" />
+                <span>매우 크게 (120%)</span>
+              </label>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settingsNavTitle">
+            <h3 id="settingsNavTitle">대시보드 탭 순서 변경</h3>
+            <p class="settings-card__lead" id="navOrderHint">
+              왼쪽 사이드바 메뉴 순서입니다. 드래그하여 바꾸거나, 항목에 포커스한 뒤 <kbd>Alt</kbd>+<kbd>↑</kbd>
+              <kbd>↓</kbd>로 이동할 수 있습니다.
+            </p>
+            <ul
+              class="settings-nav-list"
+              id="navOrderList"
+              role="list"
+              aria-describedby="navOrderHint"
+            ></ul>
+            <div class="settings-nav-actions">
+              <button type="button" class="btn btn--secondary" id="resetNavOrderBtn">기본값으로 복원</button>
+            </div>
+          </section>
+
+          <section class="settings-card" aria-labelledby="settingsDataTitle">
+            <h3 id="settingsDataTitle">운영 데이터</h3>
+            <p class="settings-card__lead">
+              회원·클래스·출결·수납 등 관리 데이터는 이 PC의 브라우저 <strong>localStorage</strong>에만 저장됩니다.
+              다른 기기와 자동으로 동기화되지 않습니다.
+            </p>
+            <button type="button" class="btn btn--secondary" id="resetBiz">
+              운영 데이터만 초기화 후 데모 데이터 다시 넣기
+            </button>
+            <p class="settings-card__lead" style="margin-top: 1rem; margin-bottom: 0">
+              로그인 계정(직원) 목록은 유지됩니다. 계정까지 지우려면 브라우저에서 사이트 데이터를 삭제하세요.
+            </p>
+          </section>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="jbToast" class="jb-toast" hidden role="status" aria-live="polite"></div>
+
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/settings-page.js"></script>
+  <script>
+    (function () {
+      function run() {
+JBAppShell.init({ activeNav: "settings", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+
+      JBSettingsPage.init();
+
+      var KEYS = [
+        "jb_center_members",
+        "jb_members_schema_v2",
+        "jb_class_templates",
+        "jb_attendance_records",
+        "jb_payment_records",
+        "jb_trial_records",
+        "jb_trial_consultations",
+        "jb_makeup_records",
+        "jb_makeup_consultations",
+        "jb_makeup_demo_two",
+        "jb_schedule_events",
+        "jb_consultation_records",
+        "jb_club_team_records",
+        "jb_shuttle_records",
+        "jb_shuttle_vehicles_v1",
+        "jb_shuttle_routes_v1",
+        "jb_shuttle_share_token_v1",
+        "jb_protective_requests",
+        "jb_protective_inventory_v1",
+        "jb_students_registry_v1",
+        "jb_classes_registry_v1",
+        "jb_notices_v1",
+        "jb_application_links",
+        "jb_management_data_v1",
+      ];
+
+      document.getElementById("resetBiz").addEventListener("click", function () {
+        JBUI.confirm("운영 데이터를 모두 지우고 초기 데모 데이터를 다시 생성할까요?", {
+          title: "데이터 초기화",
+          confirmText: "초기화",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          for (var i = 0; i < KEYS.length; i++) {
+            localStorage.removeItem(KEYS[i]);
+          }
+          JBData.ensureSeed();
+          JBUI.toast("초기화했습니다. 대시보드에서 수치를 확인해 보세요.", "ok");
+          setTimeout(function () {
+            location.href = "main.html";
+          }, 400);
+        });
+      });
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

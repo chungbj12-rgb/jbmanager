@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>직원관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>직원관리</h2>
+          <p>로그인 계정으로 등록된 직원 목록입니다. 신규 계정은 회원가입으로 추가하세요.</p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>이름</th>
+                  <th>직책</th>
+                  <th>전화번호</th>
+                  <th>이메일</th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      function run() {
+JBAppShell.init({ activeNav: "staff", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      document.getElementById("tbody").innerHTML = JBAuth.listStaffSafe()
+        .map(function (s) {
+          return (
+            "<tr><td>" +
+            (s.name || "") +
+            "</td><td>" +
+            (s.position || "") +
+            "</td><td>" +
+            (s.phone || "") +
+            "</td><td>" +
+            (s.email || "") +
+            "</td></tr>"
+          );
+        })
+        .join("");
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

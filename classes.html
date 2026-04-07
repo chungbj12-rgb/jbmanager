@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>클래스관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/members-page.css" />
+  <link rel="stylesheet" href="css/classes-page.css?v=3" />
+</head>
+<body class="app-body page-classes">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="classes-workspace">
+          <h2 class="classes-page-title">클래스관리</h2>
+
+          <div class="classes-toolbar">
+            <div class="classes-toolbar__left">
+              <button type="button" class="btn-class-add" id="btnOpenAddClass" aria-label="클래스 추가">
+                + 클래스추가
+              </button>
+              <button type="button" class="btn-class-bulk" id="btnOpenBulkClass" aria-label="클래스 일괄 등록">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                  <polyline points="14 2 14 8 20 8" />
+                  <line x1="12" y1="18" x2="12" y2="12" />
+                  <line x1="9" y1="15" x2="15" y2="15" />
+                </svg>
+                일괄등록
+              </button>
+            </div>
+            <div class="classes-toolbar__right">
+              <span id="classesTotalCount" class="classes-count">전체 클래스: <span id="classesTotalNum">0</span>개</span>
+              <div class="classes-search-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                  <circle cx="11" cy="11" r="8" />
+                  <path d="m21 21-4.3-4.3" />
+                </svg>
+                <input
+                  type="search"
+                  class="classes-search"
+                  id="classSearch"
+                  placeholder="클래스명 또는 학생이름으로 검색…"
+                  autocomplete="off"
+                />
+              </div>
+            </div>
+          </div>
+
+          <div class="classes-selection-bar" id="classesSelectionBar" hidden role="region" aria-label="선택한 클래스">
+            <span id="classesSelectionCount" class="classes-selection-bar__count" aria-live="polite"></span>
+            <button type="button" class="classes-selection-bar__del" id="btnDeleteSelectedClasses">선택 삭제</button>
+          </div>
+
+          <div class="classes-table-card">
+            <div class="classes-table-wrap">
+              <table class="classes-table">
+                <thead>
+                  <tr>
+                    <th class="classes-table__th-cb">
+                      <input type="checkbox" id="cbSelectAllClasses" class="classes-cb" title="전체 선택" aria-label="전체 선택" />
+                    </th>
+                    <th>클래스명</th>
+                    <th>요일</th>
+                    <th>시간</th>
+                    <th>담당코치</th>
+                    <th>회원이름</th>
+                    <th>회원수</th>
+                    <th>수강료</th>
+                  </tr>
+                </thead>
+                <tbody id="classTbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="addClassModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="addClassModalTitle">
+    <div class="members-modal members-modal--wide classes-add-modal">
+      <div class="members-modal__head">
+        <h3 id="addClassModalTitle">클래스 추가</h3>
+        <button type="button" class="members-modal__close" id="addClassModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="addClassForm">
+        <input type="hidden" id="cEditId" value="" />
+        <div class="classes-modal-row2">
+          <div class="mb-field">
+            <label for="cName">클래스명</label>
+            <input class="mb-input" type="text" id="cName" name="name" placeholder="예: A반" autocomplete="off" required />
+          </div>
+          <div class="mb-field">
+            <span class="classes-label-line">요일 <span class="classes-label-sub">(복수 선택 가능)</span></span>
+            <div class="weekday-pills" id="weekdayPills" aria-label="요일 선택"></div>
+          </div>
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label>시작시간</label>
+            <div class="time-split" role="group" aria-label="시작시간">
+              <select class="mb-select time-split__sel" id="cStartH" aria-label="시"></select>
+              <span class="time-split__colon">:</span>
+              <select class="mb-select time-split__sel" id="cStartM" aria-label="분"></select>
+            </div>
+          </div>
+          <div class="mb-field">
+            <label>종료시간</label>
+            <div class="time-split" role="group" aria-label="종료시간">
+              <select class="mb-select time-split__sel" id="cEndH" aria-label="시"></select>
+              <span class="time-split__colon">:</span>
+              <select class="mb-select time-split__sel" id="cEndM" aria-label="분"></select>
+            </div>
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="coachAddSelect">담당코치 <span class="classes-label-sub">(최대 3명)</span></label>
+          <select class="mb-select" id="coachAddSelect">
+            <option value="">담당 코치 선택</option>
+          </select>
+          <div id="coachChips" class="coach-chips" aria-live="polite"></div>
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="cCapacity">정원수</label>
+            <input class="mb-input" type="number" id="cCapacity" min="0" step="1" placeholder="정원 수 입력" />
+          </div>
+          <div class="mb-field">
+            <label for="cTuition">수강료 (원)</label>
+            <input class="mb-input" type="number" id="cTuition" min="0" step="1" placeholder="수강료 입력" />
+          </div>
+        </div>
+        <div class="mb-actions">
+          <button type="button" class="btn-mb-cancel" id="btnAddClassCancel">취소</button>
+          <button type="submit" class="btn-class-submit" id="btnClassSubmit">개설</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <input
+    type="file"
+    id="bulkClassFile"
+    hidden
+    accept=".xlsx,.xls,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+  />
+
+  <div id="classesBulkLoading" class="members-loading-overlay" hidden>
+    <div class="members-loading-overlay__spin" aria-hidden="true"></div>
+    <span>파일을 분석하는 중…</span>
+  </div>
+
+  <div id="bulkClassUploadModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="bulkClassUploadTitle">
+    <div class="members-modal members-modal--wide bulk-upload-modal">
+      <div class="members-modal__head">
+        <h3 id="bulkClassUploadTitle">클래스일괄등록</h3>
+        <button type="button" class="members-modal__close" id="bulkClassUploadModalClose" aria-label="닫기">×</button>
+      </div>
+      <p class="bulk-upload-lead">
+        Excel 파일을 여기에 끌어놓으세요 또는 <strong>파일 선택</strong> 버튼을 눌러 업로드하세요.
+      </p>
+      <ul class="bulk-upload-rules">
+        <li>지원 파일 형식: .xlsx, .xls (Excel 파일만 가능)</li>
+        <li>첫 행은 헤더입니다. 열 이름에「클래스명」또는「클래스」가 있으면 해당 열을 사용하고, 없으면 <strong>첫 번째 열</strong>을 클래스명으로 읽습니다.</li>
+        <li>클래스명만 있으면 등록됩니다. (요일·시간·정원 등은 기본값으로 저장)</li>
+      </ul>
+      <div
+        id="bulkClassDropZone"
+        class="bulk-drop-zone"
+        tabindex="0"
+        role="button"
+        aria-label="Excel 파일을 끌어놓거나 Enter로 파일 선택"
+      >
+        <span class="bulk-drop-zone__icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 16V4m0 0 4 4m-4-4L8 8" stroke-linecap="round" stroke-linejoin="round" />
+            <path d="M4 14v2a3 3 0 0 0 3 3h10a3 3 0 0 0 3-3v-2" stroke-linecap="round" />
+            <path d="M4 14h16" stroke-linecap="round" />
+          </svg>
+        </span>
+        <p class="bulk-drop-zone__title">Excel 파일을 여기에 끌어놓으세요</p>
+        <p class="bulk-drop-zone__sub">또는 아래 버튼으로 파일을 선택하세요</p>
+        <button type="button" class="btn-bulk-pick" id="btnBulkClassPickFile">파일 선택</button>
+      </div>
+      <div class="mb-actions bulk-upload-actions">
+        <button type="button" class="btn-mb-cancel" id="bulkClassUploadCancelBtn">취소</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="bulkClassModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="bulkClassResultTitle">
+    <div class="members-modal members-modal--wide">
+      <div class="members-modal__head">
+        <h3 id="bulkClassResultTitle">일괄등록 검증 결과</h3>
+        <button type="button" class="members-modal__close" id="bulkClassModalClose" aria-label="닫기">×</button>
+      </div>
+      <p class="bulk-modal-hint">
+        첫 행은 헤더로 인식합니다. 정상으로 표시된 행만 등록할 수 있습니다. 이미 등록된 클래스명·파일 안 중복은 건너뜁니다.
+      </p>
+      <div class="bulk-preview-scroll">
+        <table class="bulk-preview-table">
+          <thead>
+            <tr>
+              <th>행</th>
+              <th>클래스명</th>
+              <th>상태</th>
+              <th>메시지</th>
+            </tr>
+          </thead>
+          <tbody id="bulkClassPreviewBody"></tbody>
+        </table>
+      </div>
+      <div class="mb-actions">
+        <button type="button" class="btn-mb-cancel" id="bulkClassCancelBtn">닫기</button>
+        <button type="button" class="btn-mb-save" id="bulkClassSubmitBtn" disabled>등록하기</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/classes-page.js?v=3"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

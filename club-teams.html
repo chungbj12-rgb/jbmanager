@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>클럽팀관리 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/members-page.css" />
+  <link rel="stylesheet" href="css/club-teams-page.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="club-teams-workspace">
+          <h1 class="club-teams-title">클럽팀관리</h1>
+
+          <div class="club-teams-tabs" role="tablist" aria-label="클럽팀 섹션">
+            <button type="button" class="club-tab club-tab--active" role="tab" aria-selected="true" aria-current="page">
+              회원정보
+            </button>
+          </div>
+
+          <div class="club-toolbar">
+            <select id="clubClassFilter" class="club-toolbar__select" aria-label="U클래스 필터"></select>
+            <span id="clubMemberCount" class="club-count">0명</span>
+            <button type="button" class="club-btn-sync" id="clubBtnSync" aria-label="클래스 목록 동기화">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <path d="M23 4v6h-6" />
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+              </svg>
+              동기화
+            </button>
+            <div class="club-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8" />
+                <path d="m21 21-4.3-4.3" />
+              </svg>
+              <input type="search" id="clubSearch" class="club-search" placeholder="이름, 전화번호 검색…" autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="club-banner club-banner--info" role="note">
+            회원관리에서 클래스명이 <strong>U-</strong>로 시작하는 클래스(예: U-15, U-18)에 배정된 회원이 이 화면에 자동으로 표시됩니다.
+          </div>
+          <div class="club-banner club-banner--warn" role="note">
+            ⚠️ 개인정보는 보안에 유의하여 관리해주세요.
+          </div>
+
+          <div class="club-table-card">
+            <div class="club-table-wrap">
+              <table class="club-table">
+                <thead>
+                  <tr>
+                    <th>클래스</th>
+                    <th>이름</th>
+                    <th>성별</th>
+                    <th>학년</th>
+                    <th>전화번호</th>
+                    <th>등번호</th>
+                    <th>유니폼</th>
+                    <th>접입</th>
+                    <th>주민번호</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="clubMemberTbody"></tbody>
+              </table>
+            </div>
+            <p class="club-privacy-foot">개인정보(주민번호 등)는 보안에 유의하여 관리해주세요.</p>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <div id="clubToast" class="members-toast" role="status" aria-live="polite"></div>
+
+  <div id="clubDetailModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="clubDetailTitle">
+    <div class="members-modal members-modal--wide">
+      <div class="members-modal__head">
+        <h3 id="clubDetailTitle">회원 상세 · 클럽 정보</h3>
+        <button type="button" class="members-modal__close" id="clubDetailModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="clubDetailForm" onsubmit="return false;">
+        <input type="hidden" id="ctId" value="" />
+        <div class="mb-field">
+          <label for="ctName">이름</label>
+          <input class="mb-input" type="text" id="ctName" autocomplete="name" />
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="ctGender">성별</label>
+            <select class="mb-select" id="ctGender">
+              <option value="">선택안함</option>
+              <option value="남">남</option>
+              <option value="여">여</option>
+            </select>
+          </div>
+          <div class="mb-field">
+            <label for="ctGrade">학년</label>
+            <input class="mb-input" type="text" id="ctGrade" placeholder="예: 2학년" />
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="ctPhone">전화번호</label>
+          <input class="mb-input" type="tel" id="ctPhone" inputmode="numeric" autocomplete="tel" />
+        </div>
+        <div class="mb-field">
+          <label for="ctSchool">학교</label>
+          <input class="mb-input" type="text" id="ctSchool" autocomplete="organization" />
+        </div>
+        <div class="mb-field">
+          <label for="ctClass">클래스 (U- 로 시작하는 클래스만)</label>
+          <select class="mb-select" id="ctClass"></select>
+        </div>
+        <div class="mb-grid2">
+          <div class="mb-field">
+            <label for="ctJersey">등번호</label>
+            <input class="mb-input" type="text" id="ctJersey" inputmode="numeric" />
+          </div>
+          <div class="mb-field">
+            <label for="ctUniform">유니폼</label>
+            <input class="mb-input" type="text" id="ctUniform" />
+          </div>
+        </div>
+        <div class="mb-field">
+          <label for="ctJoined">접입(접촉 여부)</label>
+          <select class="mb-select" id="ctJoined">
+            <option value="">미선택</option>
+            <option value="Y">예</option>
+            <option value="N">아니오</option>
+          </select>
+        </div>
+        <div class="mb-field">
+          <label for="ctRrn">주민번호</label>
+          <input class="mb-input" type="text" id="ctRrn" autocomplete="off" placeholder="입력 시 주의" />
+        </div>
+        <div class="mb-actions">
+          <button type="button" class="btn-mb-cancel" id="ctBtnCancel">취소</button>
+          <button type="button" class="btn-detail-save" id="ctBtnSave">저장</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script src="js/club-teams-page.js"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

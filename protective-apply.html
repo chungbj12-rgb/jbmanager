@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>보호대 신청 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/protective-public.css" />
+</head>
+<body>
+  <div class="protective-pub-root">
+    <div class="protective-pub-brand">제이비스포츠</div>
+    <h1 class="protective-pub-title">보호대 신청</h1>
+    <p class="protective-pub-lead">
+      무릎보호대, 팔꿈치보호대 중 선택하며 사이즈는 S · M · L 만 접수합니다. 제출 후 센터에서 확인하여 연락드립니다.
+    </p>
+
+    <form class="protective-pub-form" id="pubForm">
+      <div class="protective-pub-field">
+        <label for="applicantName">신청자 성함 (보호자)</label>
+        <input id="applicantName" name="applicantName" type="text" required autocomplete="name" />
+      </div>
+      <div class="protective-pub-field">
+        <label for="studentName">학생 이름 (선택)</label>
+        <input id="studentName" name="studentName" type="text" autocomplete="name" />
+      </div>
+      <div class="protective-pub-field">
+        <label for="phone">연락처 (010 휴대폰)</label>
+        <input id="phone" name="phone" type="tel" inputmode="numeric" required placeholder="010-0000-0000" />
+      </div>
+      <div class="protective-pub-field">
+        <span>품목</span>
+        <div class="protective-pub-radios">
+          <label><input type="radio" name="product" value="knee" required checked /> 무릎보호대</label>
+          <label><input type="radio" name="product" value="elbow" /> 팔꿈치보호대</label>
+        </div>
+      </div>
+      <div class="protective-pub-field">
+        <label for="size">사이즈</label>
+        <select id="size" name="size" required>
+          <option value="S">S</option>
+          <option value="M">M</option>
+          <option value="L">L</option>
+        </select>
+      </div>
+      <button type="submit" class="protective-pub-btn">신청하기</button>
+    </form>
+
+    <p class="protective-pub-note">
+      같은 브라우저에서 관리자와 데이터를 공유하지 않습니다. 센터에서 Supabase를 사용 중이면 제출 내용이 관리자 화면에 반영됩니다.
+    </p>
+  </div>
+
+  <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="app-data.js"></script>
+  <script>
+    (function () {
+      document.getElementById("pubForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var product = document.querySelector('input[name="product"]:checked');
+        var row = JBData.addProtectiveFromParentSubmission({
+          applicantName: document.getElementById("applicantName").value.trim(),
+          studentName: document.getElementById("studentName").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          productType: product ? product.value : "",
+          size: document.getElementById("size").value,
+        });
+        if (row) {
+          JBUI.toast("신청이 접수되었습니다. 감사합니다.", "ok");
+          e.target.reset();
+          document.querySelector('input[name="product"][value="knee"]').checked = true;
+        } else {
+          JBUI.toast("신청자 이름, 품목, 사이즈, 연락처(010 형식)를 확인해 주세요.", "err");
+        }
+      });
+    })();
+  </script>
+</body>
+</html>

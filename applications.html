@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>신청서링크 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2>신청서링크</h2>
+          <p>
+            구글폼·노션 등 외부 신청 페이지 URL을 보관합니다.
+            <strong>보호대신청</strong>은 제목에 「보호대」가 들어가는 항목의 URL에
+            <code style="font-size:0.85em">protective-apply.html</code> 주소를 넣으면, 학부모 접수가 보호대신청 명단에 연동됩니다.
+          </p>
+        </div>
+        <div class="data-card">
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>제목</th>
+                  <th>URL</th>
+                  <th>비고</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="tbody"></tbody>
+            </table>
+          </div>
+          <form class="inline-form" id="f">
+            <div>
+              <label class="auth-label" for="t">제목</label>
+              <input class="auth-input" id="t" required />
+            </div>
+            <div class="full">
+              <label class="auth-label" for="u">URL</label>
+              <input class="auth-input" id="u" type="url" placeholder="https://" required />
+            </div>
+            <div class="full">
+              <label class="auth-label" for="n">비고</label>
+              <input class="auth-input" id="n" />
+            </div>
+            <div><button type="submit" class="btn btn--primary">추가</button></div>
+          </form>
+        </div>
+      </main>
+    </div>
+  </div>
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      function run() {
+JBAppShell.init({ activeNav: "applications", pageTitle: "제이비스포츠 관리프로그램" });
+      if (!JBAuth.getCurrentUser()) return;
+      var tb = document.getElementById("tbody");
+
+      function render() {
+        tb.innerHTML = JBData.getAppLinks()
+          .map(function (r) {
+            return (
+              "<tr><td>" +
+              (r.title || "") +
+              '</td><td><a href="' +
+              (r.url || "#") +
+              '" target="_blank" rel="noopener" style="color:#ff8f5a">' +
+              (r.url || "") +
+              "</a></td><td>" +
+              (r.note || "") +
+              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
+              r.id +
+              '">삭제</button></td></tr>'
+            );
+          })
+          .join("");
+      }
+
+      tb.addEventListener("click", function (e) {
+        var id = e.target.dataset && e.target.dataset.id;
+        if (!id) return;
+        e.preventDefault();
+        JBUI.confirm("이 항목을 삭제할까요?", {
+          title: "삭제 확인",
+          confirmText: "삭제",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          JBData.saveAppLinks(JBData.getAppLinks().filter(function (x) { return x.id !== id; }));
+          render();
+        });
+      });
+
+      document.getElementById("f").addEventListener("submit", function (e) {
+        e.preventDefault();
+        var list = JBData.getAppLinks();
+        list.push({
+          id: "l-" + Date.now(),
+          title: document.getElementById("t").value.trim(),
+          url: document.getElementById("u").value.trim(),
+          note: document.getElementById("n").value.trim(),
+        });
+        JBData.saveAppLinks(list);
+        e.target.reset();
+        render();
+      });
+      render();
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

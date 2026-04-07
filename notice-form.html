@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>공지 작성 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/notion-editor.css" />
+</head>
+<body class="app-body">
+  <div class="app-layout" id="appLayout">
+    <aside class="app-sidebar" id="app-sidebar"></aside>
+    <div class="app-column">
+      <header class="app-topbar" id="app-topbar"></header>
+      <main class="app-content">
+        <div class="app-page-head">
+          <h2 id="pageTitleLabel">공지 작성</h2>
+          <p>제목과 본문을 블록 단위로 구성할 수 있습니다</p>
+        </div>
+        <div id="formErr" class="auth-banner auth-banner--error" hidden role="alert"></div>
+        <form id="noticeForm" class="data-card" style="padding: 1.25rem">
+          <div class="auth-field">
+            <label class="auth-label" for="nTitle">제목 *</label>
+            <input class="auth-input" id="nTitle" required />
+          </div>
+          <p class="content-section-title">본문</p>
+          <div id="noticeBodyEditor" class="notion-editor-wrap"></div>
+          <div class="modal-account-actions" style="margin-top: 1rem">
+            <button type="submit" class="btn btn--primary">저장</button>
+            <button type="button" class="btn btn--secondary" id="btnCancel">취소</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+    <script src="js/ui-dialog.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="auth.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/jb-content-api.js"></script>
+  <script src="app-shell.js"></script>
+  <script>
+    (function () {
+      function run() {
+        JBAppShell.init({ activeNav: "notices", pageTitle: "제이비스포츠 관리프로그램" });
+      }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
+    })();
+  </script>
+  <script type="module" src="js/notice-form.mjs"></script>
+  <script src="live-reload.js"></script>
+</body>
+</html>

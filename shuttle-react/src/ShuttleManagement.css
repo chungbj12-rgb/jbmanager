@@ -1,0 +1,144 @@
+.shuttle-management {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem 2.5rem;
+}
+
+.shuttle-management__head {
+  margin-bottom: 1.25rem;
+}
+
+.shuttle-management__title {
+  margin: 0 0 0.5rem;
+  font-size: 1.65rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.shuttle-management__sub {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: #9aa3b2;
+}
+
+.shuttle-management__code {
+  font-size: 0.8em;
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #c4d4ff;
+}
+
+.shuttle-management__tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.shuttle-management__tab {
+  padding: 0.52rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 800;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  cursor: pointer;
+  color: #1a1d24;
+  background: rgba(230, 230, 235, 0.88);
+  transition:
+    background 0.15s ease,
+    color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.shuttle-management__tab:hover {
+  background: rgba(245, 245, 248, 0.95);
+}
+
+.shuttle-management__tab--active {
+  color: #fff;
+  background: linear-gradient(180deg, #1e88e5 0%, #1565c0 100%);
+  border-color: rgba(25, 118, 210, 0.85);
+  box-shadow: 0 4px 14px rgba(21, 101, 192, 0.35);
+}
+
+.shuttle-management__panel {
+  padding: 1rem 1.1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.25);
+}
+
+.shuttle-management__panel--muted {
+  border-style: dashed;
+  min-height: 8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.shuttle-management__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.65rem 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.shuttle-management__row:last-of-type {
+  margin-bottom: 0;
+}
+
+.shuttle-management__label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #c5d0e0;
+  min-width: 6.5rem;
+}
+
+.shuttle-management__select {
+  flex: 1;
+  min-width: 200px;
+  max-width: 100%;
+  padding: 0.5rem 0.65rem;
+  font-family: inherit;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #e8ecf1;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  outline: none;
+}
+
+.shuttle-management__select:focus {
+  border-color: rgba(61, 220, 132, 0.45);
+}
+
+.shuttle-management__summary {
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: #b8c0cc;
+}
+
+.shuttle-management__summary strong {
+  color: #ffb74d;
+}
+
+.shuttle-management__placeholder {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #9aa3b2;
+  line-height: 1.55;
+}
+
+.shuttle-management__panel .shuttle-management__row + .shuttle-management__summary {
+  margin-top: 0.5rem;
+}

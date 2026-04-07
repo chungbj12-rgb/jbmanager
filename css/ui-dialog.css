@@ -1,0 +1,122 @@
+/* 전역 토스트·확인창 (회원관리 토스트/모달 톤과 통일) */
+
+:root {
+  --jb-ui-toast-bg: #2d2d44;
+  --jb-ui-toast-border: rgba(255, 255, 255, 0.12);
+  --jb-ui-toast-text: #f0f2f5;
+  --jb-ui-dialog-bg: #1e1e2f;
+  --jb-ui-dialog-border: rgba(255, 255, 255, 0.1);
+  --jb-ui-dialog-text: #f0f2f5;
+  --jb-ui-dialog-muted: #9aa3b2;
+}
+
+html[data-theme="light"] {
+  --jb-ui-toast-bg: #ffffff;
+  --jb-ui-toast-border: rgba(15, 23, 42, 0.12);
+  --jb-ui-toast-text: #111827;
+  --jb-ui-dialog-bg: #ffffff;
+  --jb-ui-dialog-border: rgba(15, 23, 42, 0.12);
+  --jb-ui-dialog-text: #111827;
+  --jb-ui-dialog-muted: #64748b;
+}
+
+.jb-ui-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  z-index: 520;
+  max-width: min(92vw, 28rem);
+  padding: 0.65rem 1.25rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  background: var(--jb-ui-toast-bg);
+  border: 1px solid var(--jb-ui-toast-border);
+  color: var(--jb-ui-toast-text);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  opacity: 0;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.jb-ui-toast.is-show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+.jb-ui-toast--ok {
+  border-color: rgba(40, 167, 69, 0.45);
+}
+
+.jb-ui-toast--err {
+  border-color: rgba(229, 57, 53, 0.5);
+}
+
+.jb-ui-confirm-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 540;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(2px);
+}
+
+.jb-ui-confirm-dialog {
+  width: 100%;
+  max-width: 22rem;
+  padding: 1.25rem 1.35rem 1.15rem;
+  border-radius: 14px;
+  background: var(--jb-ui-dialog-bg);
+  border: 1px solid var(--jb-ui-dialog-border);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  color: var(--jb-ui-dialog-text);
+}
+
+.jb-ui-confirm__title {
+  margin: 0 0 0.65rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.jb-ui-confirm__msg {
+  margin: 0 0 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.55;
+  color: var(--jb-ui-dialog-muted);
+  white-space: pre-line;
+}
+
+.jb-ui-confirm__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.jb-ui-confirm__actions .btn {
+  min-width: 5rem;
+}
+
+.jb-ui-prompt-dialog .jb-ui-confirm__msg {
+  margin-bottom: 0.65rem;
+}
+
+.jb-ui-prompt__input {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 1rem;
+}
+
+html[data-theme="light"] .jb-ui-confirm-overlay {
+  background: rgba(15, 23, 42, 0.4);
+}
