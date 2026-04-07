@@ -82,8 +82,14 @@ function bootStudentForm() {
   });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootStudentForm);
-} else {
-  bootStudentForm();
+function boot() {
+  var p = window.JBAuth && JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+  p.then(function () {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootStudentForm);
+    } else {
+      bootStudentForm();
+    }
+  });
 }
+boot();

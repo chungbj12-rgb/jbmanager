@@ -33,11 +33,11 @@ function bootStudentDetail() {
   document.getElementById("btnCopyLink").addEventListener("click", async function () {
     try {
       await navigator.clipboard.writeText(link);
-      alert("링크를 복사했습니다.");
+      window.JBUI.toast("링크를 복사했습니다.", "ok");
     } catch (e) {
       document.getElementById("permalink").select();
       document.execCommand("copy");
-      alert("링크를 복사했습니다.");
+      window.JBUI.toast("링크를 복사했습니다.", "ok");
     }
   });
 
@@ -46,14 +46,26 @@ function bootStudentDetail() {
   });
 
   document.getElementById("btnDelete").addEventListener("click", function () {
-    if (!confirm("이 학생 정보를 삭제할까요?")) return;
-    window.JBContentApi.students.remove(row.id);
-    location.href = "students.html";
+    window.JBUI.confirm("이 학생 정보를 삭제할까요?", {
+      title: "삭제 확인",
+      confirmText: "삭제",
+      cancelText: "취소",
+    }).then(function (ok) {
+      if (!ok) return;
+      window.JBContentApi.students.remove(row.id);
+      location.href = "students.html";
+    });
   });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootStudentDetail);
-} else {
-  bootStudentDetail();
+function boot() {
+  var p = window.JBAuth && JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+  p.then(function () {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootStudentDetail);
+    } else {
+      bootStudentDetail();
+    }
+  });
 }
+boot();

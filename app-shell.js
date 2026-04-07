@@ -1,9 +1,14 @@
 (function (global) {
+  if (!global.JBPreferences) {
+    document.documentElement.setAttribute("data-theme", "dark");
+    document.documentElement.style.fontSize = "100%";
+  }
+
   var NAV = [
     { id: "dashboard", href: "main.html", label: "대시보드", icon: "grid" },
     { id: "members", href: "members.html", label: "회원관리", icon: "users" },
     { id: "clubs", href: "club-teams.html", label: "클럽팀관리", icon: "briefcase" },
-    { id: "trials", href: "trials.html", label: "체험관리", icon: "userCheck" },
+    { id: "trials", href: "trials.html", label: "체험", icon: "userCheck" },
     { id: "makeup", href: "makeup.html", label: "보강관리", icon: "refresh" },
     { id: "classes", href: "classes.html", label: "클래스관리", icon: "layers" },
     { id: "attendance", href: "attendance.html", label: "출결관리", icon: "clipboard" },
@@ -13,12 +18,44 @@
     { id: "consultation", href: "consultation.html", label: "상담관리", icon: "message" },
     { id: "payments", href: "payments.html", label: "수납관리", icon: "wallet" },
     { id: "staff", href: "staff.html", label: "직원관리", icon: "user" },
-    { id: "applications", href: "applications.html", label: "신청서링크", icon: "clipboard" },
-    { id: "studentsReg", href: "students.html", label: "학생관리", icon: "studentCap" },
-    { id: "classesReg", href: "class-registry.html", label: "수업·클래스", icon: "board" },
+    { id: "applications", href: "applications.html", label: "신청서링크", icon: "link" },
     { id: "notices", href: "notices.html", label: "공지사항", icon: "megaphone" },
     { id: "settings", href: "settings.html", label: "설정", icon: "gear" },
   ];
+
+  function getDefaultNavOrder() {
+    return NAV.map(function (n) {
+      return n.id;
+    });
+  }
+
+  function getOrderedNavItems() {
+    try {
+      var byId = {};
+      NAV.forEach(function (n) {
+        byId[n.id] = n;
+      });
+      var order =
+        global.JBPreferences && global.JBPreferences.getNavOrderRaw ? global.JBPreferences.getNavOrderRaw() : null;
+      if (!order || !Array.isArray(order)) order = getDefaultNavOrder();
+      var seen = {};
+      var out = [];
+      order.forEach(function (id) {
+        if (byId[id] && !seen[id]) {
+          out.push(byId[id]);
+          seen[id] = true;
+        }
+      });
+      NAV.forEach(function (n) {
+        if (!seen[n.id]) out.push(n);
+      });
+      if (!out.length) return NAV.slice();
+      return out;
+    } catch (e) {
+      console.error("JBAppShell: getOrderedNavItems", e);
+      return NAV.slice();
+    }
+  }
 
   var SVG = {
     grid:
@@ -36,7 +73,7 @@
     clipboard:
       '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 12 2 2 4-4"/></svg>',
     bus:
-      '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 6v6"/><path d="M15 6v6"/><path d="M2 12h19.5"/><path d="M18 18h3s.5-1 .5-2-.5-2-.5-2h-5s-.5 1-.5 2 .5 2 .5 2z"/><path d="M16 6h2a2 2 0 0 1 2 2v9"/><path d="M4 18h2"/></svg>',
+      '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="16" height="8" rx="1"/><path d="M5 8V6a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v2"/><path d="M6 12h5"/><path d="M13 12h5"/><circle cx="7.5" cy="18" r="1.75"/><circle cx="16.5" cy="18" r="1.75"/></svg>',
     cube:
       '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2l9 5v10l-9 5-9-5V7l9-5z"/><path d="M12 22V12"/><path d="m21 7-9 5-9-5"/></svg>',
     cal:
@@ -55,6 +92,8 @@
       '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="14" rx="2"/><path d="M7 8h10M7 12h6M8 22h8"/></svg>',
     megaphone:
       '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 11 18-5v12L3 13v-2z"/><path d="M11.6 16.8a3 3 0 1 1-5.8-1.6"/></svg>',
+    link:
+      '<svg class="app-nav__svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 1 0-7l1-1a5 5 0 0 1 7 7l-1 1"/><path d="M14 11a5 5 0 0 1 0 7l-1 1a5 5 0 0 1-7-7l1-1"/></svg>',
   };
 
   function firstChar(name) {
@@ -165,15 +204,25 @@
   }
 
   function requireAuth() {
-    if (!global.JBAuth || !JBAuth.getCurrentUser()) {
+    if (!global.JBAuth) {
+      location.replace("login.html");
+      return false;
+    }
+    if (typeof JBAuth.isAuthGateReady === "function" && !JBAuth.isAuthGateReady()) {
+      return false;
+    }
+    if (!JBAuth.getCurrentUser()) {
       location.replace("login.html");
       return false;
     }
     return true;
   }
 
+  /** 각 관리 HTML의 #app-sidebar는 항상 존재(페이지·메뉴별 조건부 마운트 아님). 내용만 채움. */
   function renderSidebar(activeId, asideEl) {
-    var navHtml = NAV.map(function (item) {
+    var items = getOrderedNavItems();
+    if (!items || !items.length) items = NAV.slice();
+    var navHtml = items.map(function (item) {
       var active = item.id === activeId ? " app-nav__link--active" : "";
       var ic = SVG[item.icon] || SVG.grid;
       return (
@@ -199,6 +248,34 @@
       '<nav class="app-nav" aria-label="주 메뉴">' +
       navHtml +
       "</nav>";
+  }
+
+  function currentHtmlFile() {
+    var p = (location.pathname || "").replace(/\\/g, "/");
+    var seg = p.split("/").pop();
+    if (seg && /\.html?$/i.test(seg)) return seg;
+    var h = location.href || "";
+    var m = h.match(/([^/\\]+\.html)/i);
+    return m ? m[1] : "";
+  }
+
+  /** init이 실패하거나 순서 문제로 #app-sidebar가 비었을 때 복구 (셔틀·보호대 등) */
+  function ensureSidebarPainted() {
+    var aside = document.getElementById("app-sidebar");
+    if (!aside || aside.querySelector(".app-nav")) return;
+    var file = currentHtmlFile();
+    var activeId = "dashboard";
+    for (var i = 0; i < NAV.length; i++) {
+      if (NAV[i].href === file) {
+        activeId = NAV[i].id;
+        break;
+      }
+    }
+    try {
+      renderSidebar(activeId, aside);
+    } catch (e) {
+      console.error("JBAppShell: ensureSidebarPainted", e);
+    }
   }
 
   function renderTopbar(headerEl, titleText) {
@@ -296,13 +373,32 @@
     }
   }
 
+  function refreshNav() {
+    var aside = document.getElementById("app-sidebar");
+    if (!aside) return;
+    var active = document.querySelector(".app-nav__link--active");
+    var activeId = active ? active.getAttribute("data-nav") : "dashboard";
+    renderSidebar(activeId, aside);
+  }
+
   function init(options) {
     options = options || {};
-    if (!requireAuth()) return;
     var activeId = options.activeNav || "dashboard";
     var aside = document.getElementById("app-sidebar");
     var top = document.getElementById("app-topbar");
-    if (aside) renderSidebar(activeId, aside);
+    /* 사이드바는 로그인 여부와 무관하게 먼저 그림. requireAuth가 먼저면 미리보기·iframe 등에서
+       리다이렉트가 막힐 때 aside가 비어 있는 상태로 남는 문제가 생김 */
+    if (aside) {
+      try {
+        renderSidebar(activeId, aside);
+      } catch (e) {
+        console.error("JBAppShell: renderSidebar failed", e);
+      }
+      if (!aside.querySelector(".app-nav")) {
+        ensureSidebarPainted();
+      }
+    }
+    if (!requireAuth()) return;
     if (top) {
       renderTopbar(top, options.pageTitle);
       finalizeTopbar(top, options.pageTitle);
@@ -312,6 +408,64 @@
   global.JBAppShell = {
     init: init,
     requireAuth: requireAuth,
+    refreshNav: refreshNav,
+    ensureSidebarPainted: ensureSidebarPainted,
     NAV: NAV,
+    getOrderedNavItems: getOrderedNavItems,
+    getDefaultNavOrder: getDefaultNavOrder,
   };
+
+  (function scheduleSidebarRecovery() {
+    function tick() {
+      ensureSidebarPainted();
+    }
+    tick();
+    setTimeout(tick, 0);
+    setTimeout(tick, 80);
+    setTimeout(tick, 300);
+    setTimeout(tick, 800);
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", tick);
+    }
+  })();
+
+  /** #app-sidebar 내용이 비워지면 자동으로 메뉴 다시 그림 (SPA 아님·다른 스크립트 간섭 대비) */
+  function startSidebarDomGuard() {
+    if (typeof MutationObserver === "undefined") return;
+    var aside = document.getElementById("app-sidebar");
+    if (!aside || aside.__jbNavGuard) return;
+    aside.__jbNavGuard = true;
+    var pending = false;
+    function schedule() {
+      if (pending) return;
+      pending = true;
+      setTimeout(function () {
+        pending = false;
+        var a = document.getElementById("app-sidebar");
+        if (!a || a.querySelector(".app-nav")) return;
+        ensureSidebarPainted();
+      }, 0);
+    }
+    var obs = new MutationObserver(function () {
+      if (aside.querySelector(".app-nav")) return;
+      schedule();
+    });
+    obs.observe(aside, { childList: true, subtree: true });
+  }
+
+  if (document.body && document.body.classList.contains("app-body")) {
+    startSidebarDomGuard();
+  } else {
+    document.addEventListener(
+      "DOMContentLoaded",
+      function () {
+        if (document.body && document.body.classList.contains("app-body")) startSidebarDomGuard();
+      },
+      { once: true }
+    );
+  }
+
+  window.addEventListener("pageshow", function () {
+    ensureSidebarPainted();
+  });
 })(window);

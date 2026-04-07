@@ -191,20 +191,36 @@ export function bindNotionToolbar(barEl, api) {
 
     add("링크", "링크", function () {
       var prev = ed.getAttributes("link").href;
-      var url = window.prompt("URL 입력", prev || "https://");
-      if (url === null) return;
-      if (url === "") {
-        chain().extendMarkRange("link").unsetLink().run();
-        return;
-      }
-      chain().extendMarkRange("link").setLink({ href: url }).run();
+      window.JBUI.prompt("링크할 주소를 입력하세요.", {
+        title: "링크",
+        defaultValue: prev || "https://",
+        confirmText: "적용",
+        cancelText: "취소",
+        placeholder: "https://",
+        inputType: "url",
+      }).then(function (url) {
+        if (url === null) return;
+        if (url === "") {
+          chain().extendMarkRange("link").unsetLink().run();
+          return;
+        }
+        chain().extendMarkRange("link").setLink({ href: url }).run();
+      });
     }, function () {
       return ed.isActive("link");
     });
     add("이미지", "이미지 URL", function () {
-      var url = window.prompt("이미지 URL", "https://");
-      if (!url) return;
-      chain().setImage({ src: url }).run();
+      window.JBUI.prompt("붙여넣을 이미지 주소를 입력하세요.", {
+        title: "이미지",
+        defaultValue: "https://",
+        confirmText: "삽입",
+        cancelText: "취소",
+        placeholder: "https://",
+        inputType: "url",
+      }).then(function (url) {
+        if (url == null || url === "") return;
+        chain().setImage({ src: url }).run();
+      });
     });
 
     var sep4 = document.createElement("span");

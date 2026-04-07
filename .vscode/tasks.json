@@ -75,7 +75,7 @@
       "id": "openLoginInSimpleBrowser",
       "type": "command",
       "command": "simpleBrowser.show",
-      "args": ["http://127.0.0.1:8765/index.html"]
+      "args": ["http://127.0.0.1:8765/login.html"]
     }
   ]
 }

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
   <title>회원관리 — 제이비스포츠</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,9 +20,10 @@
           <h2 class="members-page-title">회원관리</h2>
 
           <div class="members-toolbar">
-            <div class="members-toolbar__filters" role="group" aria-label="재원·휴원 표시 (둘 다 켜면 전체)">
-              <button type="button" class="members-filter-btn is-on" id="btnFilterActive">재원생</button>
-              <button type="button" class="members-filter-btn" id="btnFilterInactive">휴원생</button>
+            <div class="members-toolbar__filters" role="tablist" aria-label="재원·휴원·전체">
+              <button type="button" class="members-filter-btn is-on" id="btnFilterActive" role="tab" aria-selected="true">재원생</button>
+              <button type="button" class="members-filter-btn" id="btnFilterInactive" role="tab" aria-selected="false">휴원생</button>
+              <button type="button" class="members-filter-btn" id="btnFilterAll" role="tab" aria-selected="false">전체</button>
             </div>
             <div class="members-toolbar__center">
               <button type="button" class="btn-member-register" id="btnOpenRegister" aria-label="회원등록">
@@ -391,15 +392,17 @@
     </div>
   </div>
 
+    <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
   <script src="app-shell.js"></script>
   <script src="js/members-page.js"></script>
-  <script>
-    JBAppShell.init({ activeNav: "members", pageTitle: "제이비스포츠 관리프로그램" });
-  </script>
   <script src="live-reload.js"></script>
 </body>
 </html>

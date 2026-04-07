@@ -1,0 +1,169 @@
+/* 설정 페이지 전용 */
+
+.settings-stack {
+  max-width: 40rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.settings-card {
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
+  border-radius: 14px;
+  padding: 1.25rem 1.35rem;
+  box-shadow: var(--app-panel-shadow);
+  color: var(--app-shell-text);
+}
+
+.settings-card h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.settings-card kbd {
+  display: inline-block;
+  padding: 0.1rem 0.35rem;
+  margin: 0 0.1rem;
+  font-size: 0.78rem;
+  font-family: inherit;
+  border-radius: 4px;
+  border: 1px solid var(--app-panel-border);
+  background: var(--app-inline-form-bg);
+  color: var(--app-shell-text);
+}
+
+.settings-card__lead {
+  margin: -0.35rem 0 1rem;
+  font-size: 0.88rem;
+  color: var(--app-shell-muted);
+  line-height: 1.5;
+}
+
+.settings-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.settings-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--app-panel-border);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.settings-option:hover {
+  background: var(--app-table-row-hover);
+}
+
+.settings-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--orange, #e85a28);
+}
+
+.settings-option span {
+  font-size: 0.9rem;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.settings-option small {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  color: var(--app-shell-muted);
+}
+
+.settings-nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.settings-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 10px;
+  border: 1px solid var(--app-panel-border);
+  background: var(--app-inline-form-bg);
+  cursor: grab;
+  transition:
+    box-shadow 0.2s ease,
+    opacity 0.2s ease,
+    transform 0.15s ease;
+}
+
+.settings-nav-item:focus {
+  outline: 2px solid var(--orange-bright, #ff6b35);
+  outline-offset: 2px;
+}
+
+.settings-nav-item--dragging {
+  opacity: 0.65;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  cursor: grabbing;
+}
+
+.settings-nav-handle {
+  flex-shrink: 0;
+  width: 1.5rem;
+  text-align: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--app-shell-muted);
+  user-select: none;
+}
+
+.settings-nav-label {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.settings-nav-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.jb-toast {
+  position: fixed;
+  bottom: 1.5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(120%);
+  z-index: 400;
+  padding: 0.65rem 1.15rem;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  background: var(--app-user-dropdown-bg);
+  color: var(--app-shell-text);
+  border: 1px solid var(--app-user-dropdown-border);
+  box-shadow: var(--app-user-dropdown-shadow);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform 0.28s ease,
+    opacity 0.28s ease;
+}
+
+.jb-toast.jb-toast--show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}

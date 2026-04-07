@@ -1,0 +1,19 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  font-family: "Noto Sans KR", system-ui, sans-serif;
+  background: #0c0e14;
+  color: #e8ecf1;
+  -webkit-font-smoothing: antialiased;
+}

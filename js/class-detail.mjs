@@ -45,11 +45,11 @@ function bootClassDetail() {
   document.getElementById("btnCopyLink").addEventListener("click", async function () {
     try {
       await navigator.clipboard.writeText(link);
-      alert("링크를 복사했습니다.");
+      window.JBUI.toast("링크를 복사했습니다.", "ok");
     } catch (e) {
       document.getElementById("permalink").select();
       document.execCommand("copy");
-      alert("링크를 복사했습니다.");
+      window.JBUI.toast("링크를 복사했습니다.", "ok");
     }
   });
 
@@ -58,14 +58,26 @@ function bootClassDetail() {
   });
 
   document.getElementById("btnDelete").addEventListener("click", function () {
-    if (!confirm("이 클래스를 삭제할까요?")) return;
-    window.JBContentApi.classesReg.remove(row.id);
-    location.href = "class-registry.html";
+    window.JBUI.confirm("이 클래스를 삭제할까요?", {
+      title: "삭제 확인",
+      confirmText: "삭제",
+      cancelText: "취소",
+    }).then(function (ok) {
+      if (!ok) return;
+      window.JBContentApi.classesReg.remove(row.id);
+      location.href = "class-registry.html";
+    });
   });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootClassDetail);
-} else {
-  bootClassDetail();
+function boot() {
+  var p = window.JBAuth && JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+  p.then(function () {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootClassDetail);
+    } else {
+      bootClassDetail();
+    }
+  });
 }
+boot();

@@ -28,6 +28,10 @@
   }
 
   function toast(msg, type) {
+    if (window.JBUI && typeof JBUI.toast === "function") {
+      JBUI.toast(msg, type);
+      return;
+    }
     var el = $("membersToast");
     if (!el) return;
     el.textContent = msg;
@@ -277,11 +281,33 @@
   function applyFilterTabUi() {
     var a = $("btnFilterActive");
     var i = $("btnFilterInactive");
+    var all = $("btnFilterAll");
     if (!a || !i) return;
-    if (state.filterActive) a.classList.add("is-on");
-    else a.classList.remove("is-on");
-    if (state.filterInactive) i.classList.add("is-on");
-    else i.classList.remove("is-on");
+    var mode = enrollmentFilterMode();
+    a.classList.toggle("is-on", mode === "active");
+    i.classList.toggle("is-on", mode === "inactive");
+    if (all) all.classList.toggle("is-on", mode === "all");
+    a.setAttribute("aria-selected", mode === "active" ? "true" : "false");
+    i.setAttribute("aria-selected", mode === "inactive" ? "true" : "false");
+    if (all) all.setAttribute("aria-selected", mode === "all" ? "true" : "false");
+  }
+
+  function setFilterMode(mode) {
+    if (enrollmentFilterMode() === mode) return;
+    if (mode === "active") {
+      state.filterActive = true;
+      state.filterInactive = false;
+    } else if (mode === "inactive") {
+      state.filterActive = false;
+      state.filterInactive = true;
+    } else {
+      state.filterActive = true;
+      state.filterInactive = true;
+    }
+    state.selectedIds = {};
+    applyFilterTabUi();
+    state.page = 0;
+    render();
   }
 
   function parentPhonesListCell(m) {
@@ -809,6 +835,7 @@
   }
 
   function init() {
+    JBAppShell.init({ activeNav: "members", pageTitle: "제이비스포츠 관리프로그램" });
     state.pageSize = loadPageSize();
     var pss0 = $("memberPageSize");
     if (pss0) pss0.value = String(state.pageSize);
@@ -828,23 +855,17 @@
     });
 
     $("btnFilterActive").addEventListener("click", function () {
-      var next = !state.filterActive;
-      if (!next && !state.filterInactive) return;
-      state.filterActive = next;
-      state.selectedIds = {};
-      applyFilterTabUi();
-      state.page = 0;
-      render();
+      setFilterMode("active");
     });
     $("btnFilterInactive").addEventListener("click", function () {
-      var next = !state.filterInactive;
-      if (!next && !state.filterActive) return;
-      state.filterInactive = next;
-      state.selectedIds = {};
-      applyFilterTabUi();
-      state.page = 0;
-      render();
+      setFilterMode("inactive");
     });
+    var btnAll = $("btnFilterAll");
+    if (btnAll) {
+      btnAll.addEventListener("click", function () {
+        setFilterMode("all");
+      });
+    }
 
     $("memberSearch").addEventListener("input", function () {
       state.search = this.value.trim();
@@ -864,22 +885,21 @@
         toast("학년 올림 기능을 불러오지 못했습니다. 페이지를 새로고침해 주세요.", "err");
         return;
       }
-      if (
-        !confirm(
-          "전체 회원의 학년을 한 단계 올립니다.\n" +
-            "(1학년→2학년 … 6학년→중1, 중3→고1, 고3은 그대로)\n" +
-            "위 형식으로 저장된 학년만 바뀝니다. 계속할까요?"
-        )
-      )
-        return;
-      var n = JBData.promoteAllMemberGradesOneStep();
-      if (n) toast(n + "명의 학년을 올렸습니다.", "ok");
-      else
-        toast(
-          "변경된 회원이 없습니다. (이미 고3이거나, 학년이 비었거나, 1학년·중1 형식이 아닐 수 있습니다)",
-          "ok"
-        );
-      render();
+      var msg =
+        "전체 회원의 학년을 한 단계 올립니다.\n" +
+        "(1학년→2학년 … 6학년→중1, 중3→고1, 고3은 그대로)\n" +
+        "위 형식으로 저장된 학년만 바뀝니다. 계속할까요?";
+      JBUI.confirm(msg, { title: "학년 올림", confirmText: "진행", cancelText: "취소" }).then(function (ok) {
+        if (!ok) return;
+        var n = JBData.promoteAllMemberGradesOneStep();
+        if (n) toast(n + "명의 학년을 올렸습니다.", "ok");
+        else
+          toast(
+            "변경된 회원이 없습니다. (이미 고3이거나, 학년이 비었거나, 1학년·중1 형식이 아닐 수 있습니다)",
+            "ok"
+          );
+        render();
+      });
     });
 
     bindPhoneAutoFormat("mPhone");
@@ -1073,16 +1093,21 @@
         toast("휴원 처리할 재원생이 선택되지 않았습니다.", "err");
         return;
       }
-      if (!confirm("선택한 재원생 " + targets.length + "명을 휴원생으로 옮길까요?")) return;
-      var now = new Date().toISOString();
-      for (var i = 0; i < targets.length; i++) {
-        JBData.updateMember(targets[i], { enrollmentStatus: "inactive", updatedAt: now });
-      }
-      state.selectedIds = {};
-      toast(targets.length + "명을 휴원 처리했습니다.", "ok");
-      render();
+      JBUI.confirm("선택한 재원생 " + targets.length + "명을 휴원생으로 옮길까요?", {
+        title: "휴원 처리",
+        confirmText: "휴원 처리",
+        cancelText: "취소",
+      }).then(function (ok) {
+        if (!ok) return;
+        var now = new Date().toISOString();
+        for (var i = 0; i < targets.length; i++) {
+          JBData.updateMember(targets[i], { enrollmentStatus: "inactive", updatedAt: now });
+        }
+        state.selectedIds = {};
+        toast(targets.length + "명을 휴원 처리했습니다.", "ok");
+        render();
+      });
     });
-
     $("btnFabReturn").addEventListener("click", function () {
       var ids = bulkSelectedIdList();
       if (!ids.length) return;
@@ -1099,14 +1124,20 @@
         toast("복귀할 휴원생이 선택되지 않았습니다.", "err");
         return;
       }
-      if (!confirm("선택한 휴원생 " + targetsR.length + "명을 재원생으로 복귀시킬까요?")) return;
-      var nowR = new Date().toISOString();
-      for (var j = 0; j < targetsR.length; j++) {
-        JBData.updateMember(targetsR[j], { enrollmentStatus: "active", updatedAt: nowR });
-      }
-      state.selectedIds = {};
-      toast(targetsR.length + "명을 재원으로 복귀했습니다.", "ok");
-      render();
+      JBUI.confirm("선택한 휴원생 " + targetsR.length + "명을 재원생으로 복귀시킬까요?", {
+        title: "재원 복귀",
+        confirmText: "복귀",
+        cancelText: "취소",
+      }).then(function (ok) {
+        if (!ok) return;
+        var nowR = new Date().toISOString();
+        for (var j = 0; j < targetsR.length; j++) {
+          JBData.updateMember(targetsR[j], { enrollmentStatus: "active", updatedAt: nowR });
+        }
+        state.selectedIds = {};
+        toast(targetsR.length + "명을 재원으로 복귀했습니다.", "ok");
+        render();
+      });
     });
 
     $("btnFabDelete").addEventListener("click", function () {
@@ -1125,28 +1156,38 @@
         toast("삭제할 휴원생이 선택되지 않았습니다.", "err");
         return;
       }
-      if (
-        !confirm(
-          "선택한 휴원생 " +
-            targetsD.length +
-            "명을 데이터에서 완전히 삭제할까요?\n이 작업은 되돌릴 수 없습니다."
-        )
-      )
-        return;
-      for (var k = 0; k < targetsD.length; k++) {
-        JBData.deleteMember(targetsD[k]);
-      }
-      state.selectedIds = {};
-      toast(targetsD.length + "명을 삭제했습니다.", "ok");
-      render();
+      var delMsg =
+        "선택한 휴원생 " +
+        targetsD.length +
+        "명을 데이터에서 완전히 삭제할까요?\n이 작업은 되돌릴 수 없습니다.";
+      JBUI.confirm(delMsg, {
+        title: "회원 삭제",
+        confirmText: "삭제",
+        cancelText: "취소",
+      }).then(function (ok) {
+        if (!ok) return;
+        for (var k = 0; k < targetsD.length; k++) {
+          JBData.deleteMember(targetsD[k]);
+        }
+        state.selectedIds = {};
+        toast(targetsD.length + "명을 삭제했습니다.", "ok");
+        render();
+      });
     });
 
     render();
+    applyFilterTabUi();
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
+  function boot() {
+    var p = JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+    p.then(function () {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    });
   }
+  boot();
 })();

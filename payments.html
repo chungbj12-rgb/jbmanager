@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
   <title>수납관리 — 제이비스포츠</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -67,13 +67,19 @@
       </main>
     </div>
   </div>
+    <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="app-shell.js"></script>
   <script>
     (function () {
-      JBAppShell.init({ activeNav: "payments", pageTitle: "제이비스포츠 관리프로그램" });
+      function run() {
+JBAppShell.init({ activeNav: "payments", pageTitle: "제이비스포츠 관리프로그램" });
       if (!JBAuth.getCurrentUser()) return;
       var now = new Date();
       document.getElementById("mon").value = JBData.monthKey(now);
@@ -130,10 +136,18 @@
           render();
           return;
         }
-        if (e.target.dataset.del && confirm("삭제할까요?")) {
-          JBData.deletePayment(e.target.dataset.del);
+        var del = e.target.dataset && e.target.dataset.del;
+        if (!del) return;
+        e.preventDefault();
+        JBUI.confirm("이 항목을 삭제할까요?", {
+          title: "삭제 확인",
+          confirmText: "삭제",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          JBData.deletePayment(del);
           render();
-        }
+        });
       });
 
       document.getElementById("f").addEventListener("submit", function (e) {
@@ -156,6 +170,12 @@
 
       fillMembers();
       render();
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
     })();
   </script>
   <script src="live-reload.js"></script>

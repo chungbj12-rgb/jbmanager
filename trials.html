@@ -2,12 +2,14 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>체험관리 — 제이비스포츠</title>
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
+  <title>체험 — 제이비스포츠</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/members-page.css" />
+  <link rel="stylesheet" href="css/trials-page.css" />
 </head>
 <body class="app-body">
   <div class="app-layout" id="appLayout">
@@ -15,118 +17,247 @@
     <div class="app-column">
       <header class="app-topbar" id="app-topbar"></header>
       <main class="app-content">
-        <div class="app-page-head">
-          <h2>체험관리</h2>
-          <p>체험 신청·방문 일정을 기록합니다</p>
-        </div>
-        <div class="data-card">
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>연락처</th>
-                  <th>체험일</th>
-                  <th>상태</th>
-                  <th>비고</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
+        <div class="trial-workspace">
+          <h2 class="trial-page-title">체험</h2>
+          <p class="trial-page-sub">체험상담과 체험신청을 구분해 관리합니다.</p>
+
+          <div class="trial-workspace-tabs members-toolbar__filters" role="tablist" aria-label="체험 구분">
+            <button type="button" class="members-filter-btn" id="workspaceTabConsult" role="tab" aria-selected="false">체험상담</button>
+            <button type="button" class="members-filter-btn is-on" id="workspaceTabApply" role="tab" aria-selected="true">체험신청</button>
           </div>
-          <form class="inline-form" id="f">
-            <div>
-              <label class="auth-label" for="n">이름</label>
-              <input class="auth-input" id="n" required />
+
+          <div id="panelTrialConsult" class="trial-panel trial-panel--consult" hidden>
+            <div class="trial-toolbar">
+              <div class="trial-toolbar__center" style="flex: 0 1 auto">
+                <button type="button" class="btn-trial-register" id="btnConsultOpen" aria-label="체험상담 등록">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                    <path d="M12 5v14M5 12h14" />
+                  </svg>
+                  체험상담 등록
+                </button>
+              </div>
+              <div class="trial-toolbar__right">
+                <div class="trial-count-row">
+                  <span id="consultCount" class="trial-count">상담 0건</span>
+                </div>
+                <button type="button" class="btn-trial-delete" id="btnConsultBulkDelete" disabled aria-label="선택 항목 삭제">삭제</button>
+                <div class="trial-search-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input type="search" class="trial-search" id="consultSearch" placeholder="이름·전화번호 검색…" autocomplete="off" />
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="auth-label" for="p">연락처</label>
-              <input class="auth-input" id="p" />
+
+            <div class="trial-table-card">
+              <div class="trial-table-wrap">
+                <table class="trial-table">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="consultCbSelectAll" class="member-cb" title="현재 페이지 전체 선택" aria-label="현재 페이지 전체 선택" /></th>
+                      <th>이름</th>
+                      <th>전화번호</th>
+                      <th>성별</th>
+                      <th>학년</th>
+                      <th>체험상담여부</th>
+                    </tr>
+                  </thead>
+                  <tbody id="consultTbody"></tbody>
+                </table>
+              </div>
+              <div class="trial-pager">
+                <button type="button" id="consultPrev" aria-label="이전 페이지">이전</button>
+                <span id="consultPageInfo">1 / 1</span>
+                <button type="button" id="consultNext" aria-label="다음 페이지">다음</button>
+                <label class="members-page-size-label" for="consultPageSize">페이지당</label>
+                <select id="consultPageSize" class="members-page-size-select mb-select" aria-label="페이지당 표시 수">
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="300">300</option>
+                </select>
+              </div>
             </div>
-            <div>
-              <label class="auth-label" for="d">체험일</label>
-              <input class="auth-input" id="d" type="date" />
+          </div>
+
+          <div id="panelTrialApply" class="trial-panel trial-panel--apply">
+            <div class="trial-toolbar">
+              <div class="trial-toolbar__filters members-toolbar__filters" role="tablist" aria-label="체험 회원 구분">
+                <button type="button" class="members-filter-btn is-on" id="tabAll" role="tab" aria-selected="true">전체회원</button>
+                <button type="button" class="members-filter-btn" id="tabRegistered" role="tab" aria-selected="false">등록회원</button>
+                <button type="button" class="members-filter-btn" id="tabUnregistered" role="tab" aria-selected="false">미등록회원</button>
+              </div>
+              <div class="trial-toolbar__center"></div>
+              <div class="trial-toolbar__right">
+                <div class="trial-count-row">
+                  <span id="trialCount" class="trial-count">전체 회원: 0명</span>
+                </div>
+                <button type="button" class="btn-trial-delete" id="btnTrialBulkDelete" disabled aria-label="선택 항목 삭제">삭제</button>
+                <div class="trial-search-wrap">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.3-4.3" />
+                  </svg>
+                  <input type="search" class="trial-search" id="trialSearch" placeholder="이름·전화번호 검색…" autocomplete="off" />
+                </div>
+              </div>
             </div>
-            <div>
-              <label class="auth-label" for="s">상태</label>
-              <select class="auth-input auth-select" id="s" style="padding-right: 2rem">
-                <option>예약</option>
-                <option>완료</option>
-                <option>취소</option>
-              </select>
+
+            <div class="trial-table-card">
+              <div class="trial-table-wrap">
+                <table class="trial-table">
+                  <thead>
+                    <tr>
+                      <th><input type="checkbox" id="trialCbSelectAll" class="member-cb" title="현재 페이지 전체 선택" aria-label="현재 페이지 전체 선택" /></th>
+                      <th>이름</th>
+                      <th>성별</th>
+                      <th>학년</th>
+                      <th>전화번호</th>
+                      <th>클래스</th>
+                      <th>체험날짜</th>
+                      <th>학교</th>
+                      <th>체험여부</th>
+                    </tr>
+                  </thead>
+                  <tbody id="trialTbody"></tbody>
+                </table>
+              </div>
+              <div class="trial-pager">
+                <button type="button" id="trialPrev" aria-label="이전 페이지">이전</button>
+                <span id="trialPageInfo">1 / 1</span>
+                <button type="button" id="trialNext" aria-label="다음 페이지">다음</button>
+                <label class="members-page-size-label" for="trialPageSize">페이지당</label>
+                <select id="trialPageSize" class="members-page-size-select mb-select" aria-label="페이지당 표시 수">
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                  <option value="300">300</option>
+                </select>
+              </div>
             </div>
-            <div class="full">
-              <label class="auth-label" for="note">비고</label>
-              <input class="auth-input" id="note" />
-            </div>
-            <div><button type="submit" class="btn btn--primary">추가</button></div>
-          </form>
+          </div>
         </div>
       </main>
     </div>
   </div>
+
+  <div id="consultModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="consultModalTitle">
+    <div class="members-modal">
+      <div class="members-modal__head">
+        <h3 id="consultModalTitle">체험상담 등록</h3>
+        <button type="button" class="members-modal__close" id="consultModalClose" aria-label="닫기">×</button>
+      </div>
+      <form id="consultForm" class="trial-modal__body">
+        <div id="consultModalErr" class="trial-modal__err" hidden role="alert"></div>
+        <div class="mb-field">
+          <label class="trial-label-req" for="consultName">이름</label>
+          <input class="mb-input" type="text" id="consultName" autocomplete="name" required />
+        </div>
+        <div class="mb-field">
+          <label class="trial-label-req" for="consultPhone">전화번호</label>
+          <input class="mb-input" type="tel" id="consultPhone" inputmode="numeric" placeholder="010-0000-0000" autocomplete="tel" required />
+        </div>
+        <div class="mb-field">
+          <label class="trial-label-req" for="consultGender">성별</label>
+          <select class="mb-select" id="consultGender" required>
+            <option value="">선택</option>
+            <option value="남">남</option>
+            <option value="여">여</option>
+          </select>
+        </div>
+        <div class="mb-field">
+          <label class="trial-label-req" for="consultGrade">학년</label>
+          <select class="mb-select" id="consultGrade" required>
+            <option value="">선택</option>
+          </select>
+        </div>
+        <div class="trial-modal-actions">
+          <button type="button" class="btn btn--secondary" id="consultCancel">취소</button>
+          <button type="submit" class="btn btn--primary">등록</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div id="trialDetailModal" class="members-modal-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="trialDetailTitle">
+    <div class="members-modal members-modal--wide">
+      <div class="members-modal__head">
+        <h3 id="trialDetailTitle">체험 상세</h3>
+        <button type="button" class="members-modal__close" id="trialDetailClose" aria-label="닫기">×</button>
+      </div>
+      <div class="trial-detail-body">
+        <div class="trial-detail-grid">
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">이름</span>
+            <span class="trial-detail-value" id="trialDetailName"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">성별</span>
+            <span class="trial-detail-value" id="trialDetailGender"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">학년</span>
+            <span class="trial-detail-value" id="trialDetailGrade"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">전화번호</span>
+            <span class="trial-detail-value" id="trialDetailPhone"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">클래스</span>
+            <span class="trial-detail-value" id="trialDetailClass"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">학교</span>
+            <span class="trial-detail-value" id="trialDetailSchool"></span>
+          </div>
+          <div class="trial-detail-item" style="grid-column: 1 / -1">
+            <span class="trial-detail-label">특이사항</span>
+            <span class="trial-detail-value" id="trialDetailNotes"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">체험여부</span>
+            <span class="trial-detail-value" id="trialDetailConsult"></span>
+          </div>
+          <div class="trial-detail-item">
+            <span class="trial-detail-label">회원 구분</span>
+            <span class="trial-detail-value" id="trialDetailReg"></span>
+          </div>
+        </div>
+        <div class="trial-detail-schedule">
+          <span class="trial-detail-label">체험일정</span>
+          <div class="trial-detail-schedule__row">
+            <span id="trialDetailDateReadonly" class="trial-detail-date-readonly"></span>
+            <div id="trialDetailDateEditWrap" class="trial-date-field" style="display: none; flex: 1; min-width: 0; max-width: 280px">
+              <input type="hidden" id="trialDetailDateHidden" />
+              <input type="text" readonly class="mb-input trial-date-field__text" id="trialDetailDateView" placeholder="날짜 선택" />
+              <button type="button" class="trial-date-field__btn" id="trialDetailDateOpen" aria-label="달력 열기">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="trial-detail-actions">
+            <button type="button" class="btn btn--secondary" id="btnTrialDetailCancelEdit" style="display: none">변경 취소</button>
+            <button type="button" class="btn btn--secondary" id="btnTrialDetailChangeSchedule">체험일정변경</button>
+            <button type="button" class="btn btn--primary" id="btnTrialDetailApplySchedule" style="display: none">적용</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="trialToast" class="members-toast" role="status" aria-live="polite"></div>
+
+    <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="app-shell.js"></script>
-  <script>
-    (function () {
-      JBAppShell.init({ activeNav: "trials", pageTitle: "제이비스포츠 관리프로그램" });
-      if (!JBAuth.getCurrentUser()) return;
-      var tb = document.getElementById("tbody");
-      var today = JBData.dateKey(new Date());
-      document.getElementById("d").value = today;
-
-      function render() {
-        var list = JBData.getTrials().slice().reverse();
-        tb.innerHTML = list
-          .map(function (r) {
-            return (
-              "<tr><td>" +
-              (r.applicantName || "") +
-              "</td><td>" +
-              (r.phone || "") +
-              "</td><td>" +
-              (r.trialDate || "") +
-              "</td><td>" +
-              (r.status || "") +
-              "</td><td>" +
-              (r.note || "") +
-              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
-              r.id +
-              '">삭제</button></td></tr>'
-            );
-          })
-          .join("");
-      }
-
-      tb.addEventListener("click", function (e) {
-        if (e.target.dataset.id && confirm("삭제할까요?")) {
-          JBData.saveTrials(JBData.getTrials().filter(function (x) { return x.id !== e.target.dataset.id; }));
-          render();
-        }
-      });
-
-      document.getElementById("f").addEventListener("submit", function (e) {
-        e.preventDefault();
-        var list = JBData.getTrials();
-        list.push({
-          id: "t-" + Date.now(),
-          applicantName: document.getElementById("n").value.trim(),
-          phone: document.getElementById("p").value.trim(),
-          trialDate: document.getElementById("d").value || today,
-          status: document.getElementById("s").value,
-          note: document.getElementById("note").value.trim(),
-        });
-        JBData.saveTrials(list);
-        e.target.reset();
-        document.getElementById("d").value = today;
-        render();
-      });
-      render();
-    })();
-  </script>
+  <script src="js/trials-page.js"></script>
   <script src="live-reload.js"></script>
 </body>
 </html>

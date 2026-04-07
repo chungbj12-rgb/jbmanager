@@ -103,6 +103,10 @@
   }
 
   function toast(msg, type) {
+    if (window.JBUI && typeof JBUI.toast === "function") {
+      JBUI.toast(msg, type);
+      return;
+    }
     var el = $("clubToast");
     if (!el) return;
     el.textContent = msg;
@@ -209,13 +213,19 @@
       toast("U클래스 소속이 아닙니다.", "err");
       return;
     }
-    if (!confirm("이 회원을 U클래스에서 제외할까요?\n(회원 데이터는 유지되며 클래스만 해제됩니다.)")) return;
-    JBData.updateMember(memberId, {
-      className: "",
-      updatedAt: new Date().toISOString(),
+    JBUI.confirm("이 회원을 U클래스에서 제외할까요?\n(회원 데이터는 유지되며 클래스만 해제됩니다.)", {
+      title: "U클래스 제외",
+      confirmText: "제외",
+      cancelText: "취소",
+    }).then(function (ok) {
+      if (!ok) return;
+      JBData.updateMember(memberId, {
+        className: "",
+        updatedAt: new Date().toISOString(),
+      });
+      toast("클래스에서 제외했습니다.", "ok");
+      render();
     });
-    toast("클래스에서 제외했습니다.", "ok");
-    render();
   }
 
   function render() {
@@ -290,6 +300,7 @@
   }
 
   function init() {
+    JBAppShell.init({ activeNav: "clubs", pageTitle: "제이비스포츠 관리프로그램" });
     if (!window.JBData || !window.JBAuth || !JBAuth.getCurrentUser()) return;
 
     fillClassFilterSelect();
@@ -337,9 +348,15 @@
     });
   }
 
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", init);
-  } else {
-    init();
+  function boot() {
+    var p = JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+    p.then(function () {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+      } else {
+        init();
+      }
+    });
   }
+  boot();
 })();

@@ -50,8 +50,14 @@ function bootNoticeForm() {
   });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootNoticeForm);
-} else {
-  bootNoticeForm();
+function boot() {
+  var p = window.JBAuth && JBAuth.waitForSession ? JBAuth.waitForSession() : Promise.resolve();
+  p.then(function () {
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", bootNoticeForm);
+    } else {
+      bootNoticeForm();
+    }
+  });
 }
+boot();

@@ -1,4 +1,6 @@
 /* JB Sports — splash / login screen */
+@import url("app-theme.css");
+@import url("css/ui-dialog.css");
 
 :root {
   --bg-void: #050508;
@@ -580,13 +582,14 @@ a.btn {
 }
 
 /* ----- Admin app shell (dashboard + nav) ----- */
+/* 기본은 PC 레이아웃: 각 관리 HTML의 viewport meta width=1280 (모바일·미리보기에서도 PC 폭으로 계산) */
 .app-body {
   margin: 0;
   min-height: 100dvh;
   min-height: 100vh;
   font-family: "Noto Sans KR", system-ui, sans-serif;
-  background: #080a0f;
-  color: var(--text-white);
+  background: var(--app-shell-bg);
+  color: var(--app-shell-text);
   -webkit-font-smoothing: antialiased;
 }
 
@@ -599,17 +602,76 @@ a.btn {
 .app-sidebar {
   width: 240px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #0d1018 0%, #0a0c12 100%);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--app-sidebar-bg);
+  border-right: 1px solid var(--app-sidebar-border);
   display: flex;
   flex-direction: column;
   padding: 1.25rem 0 1rem;
-  z-index: 50;
+  z-index: 100;
+  align-self: stretch;
+  min-height: 0;
+}
+
+/* 멀티 페이지 레이아웃: 각 HTML에 사이드바가 항상 있음(SPA의 라우트 밖 Sidebar와 동일). 숨김 방지 */
+body.app-body .app-layout {
+  position: relative;
+}
+
+body.app-body .app-sidebar {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: flex !important;
+  position: relative;
+  z-index: 100;
+}
+
+body.app-body .app-column {
+  position: relative;
+  z-index: 1;
+}
+
+body.app-body .app-sidebar .app-nav {
+  visibility: visible;
+  opacity: 1;
+}
+
+body.app-body .app-sidebar .app-nav__link {
+  color: var(--app-nav-link);
+}
+
+body.app-body .app-sidebar .app-nav__link .app-nav__label {
+  display: inline;
+}
+
+/* 좌측 네비 고정: 폭·표시 유지 (다른 페이지 CSS와 충돌 시에도 레이아웃 붕괴 방지) */
+body.app-body .app-sidebar {
+  flex: 0 0 240px;
+  min-width: 240px;
+  max-width: 240px;
+}
+
+body.app-body .app-sidebar .app-nav {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+}
+
+/* fixed 오버레이(inset:0)가 좌측 네비 전체를 덮지 않도록 — 셔틀/보호대 모달·로딩·확인창 */
+body.app-body .members-modal-overlay,
+body.app-body .members-loading-overlay,
+body.app-body .modal-overlay,
+body.app-body .protective-inv-overlay,
+body.app-body .jb-ui-confirm-overlay {
+  left: 240px;
+  right: 0;
+  top: 0;
+  bottom: 0;
 }
 
 .app-sidebar__brand {
   padding: 0 1.1rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--app-sidebar-brand-border);
   margin-bottom: 0.5rem;
 }
 
@@ -624,7 +686,7 @@ a.btn {
 .app-sidebar__brand-sub {
   display: block;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
   margin-top: 0.2rem;
 }
 
@@ -643,7 +705,7 @@ a.btn {
   gap: 0.65rem;
   padding: 0.55rem 0.75rem;
   border-radius: 10px;
-  color: #b4c2d6;
+  color: var(--app-nav-link);
   text-decoration: none;
   font-size: 0.88rem;
   font-weight: 500;
@@ -653,13 +715,13 @@ a.btn {
 }
 
 .app-nav__link:hover {
-  background: rgba(232, 90, 40, 0.08);
-  color: var(--text-white);
+  background: var(--app-nav-hover-bg);
+  color: var(--app-nav-hover-color);
 }
 
 .app-nav__link--active {
-  background: rgba(232, 90, 40, 0.22);
-  color: var(--orange-bright);
+  background: var(--app-nav-active-bg);
+  color: var(--app-nav-active-color);
   font-weight: 700;
 }
 
@@ -679,7 +741,7 @@ a.btn {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  background: linear-gradient(165deg, #0e1118 0%, #080a0f 42%, #06070c 100%);
+  background: var(--app-column-bg);
 }
 
 .app-topbar {
@@ -689,9 +751,10 @@ a.btn {
   justify-content: space-between;
   gap: 1rem;
   padding: 0.85rem 1.25rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(8, 10, 15, 0.85);
+  border-bottom: 1px solid var(--app-topbar-border);
+  background: var(--app-topbar-bg);
   backdrop-filter: blur(8px);
+  color: var(--app-shell-text);
 }
 
 .app-topbar__left {
@@ -708,10 +771,10 @@ a.btn {
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--app-menu-toggle-border);
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.04);
-  color: var(--text-white);
+  background: var(--app-menu-toggle-bg);
+  color: var(--app-menu-toggle-color);
   cursor: pointer;
 }
 
@@ -747,9 +810,9 @@ a.btn {
   align-items: center;
   gap: 0.65rem;
   padding: 0.35rem 0.55rem 0.35rem 0.75rem;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--app-user-trigger-border);
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--app-user-trigger-bg);
   color: inherit;
   font: inherit;
   cursor: pointer;
@@ -784,10 +847,10 @@ a.btn {
   top: calc(100% + 6px);
   min-width: 11rem;
   padding: 0.35rem;
-  background: #151821;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: var(--app-user-dropdown-bg);
+  border: 1px solid var(--app-user-dropdown-border);
   border-radius: 12px;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: var(--app-user-dropdown-shadow);
   z-index: 300;
 }
 
@@ -799,7 +862,7 @@ a.btn {
   border: none;
   border-radius: 8px;
   background: transparent;
-  color: var(--text-white);
+  color: var(--app-shell-text);
   font-family: inherit;
   font-size: 0.88rem;
   font-weight: 500;
@@ -807,7 +870,7 @@ a.btn {
 }
 
 .app-user-menu__item:hover {
-  background: rgba(255, 255, 255, 0.06);
+  background: var(--app-user-item-hover);
 }
 
 .app-user-menu__item--logout {
@@ -833,7 +896,7 @@ a.btn {
 
 .app-topbar__role {
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
 }
 
 .app-topbar__avatar {
@@ -871,7 +934,7 @@ a.btn {
 .app-page-head p {
   margin: 0.35rem 0 0;
   font-size: 0.88rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
 }
 
 .dashboard-stats {
@@ -894,14 +957,14 @@ a.btn {
 }
 
 .stat-card {
-  background: rgba(22, 24, 34, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--app-stat-bg);
+  border: 1px solid var(--app-stat-border);
   border-radius: 14px;
   padding: 1.1rem 1.15rem;
   display: flex;
   align-items: flex-start;
   gap: 0.9rem;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  box-shadow: var(--app-panel-shadow);
 }
 
 .stat-card__icon {
@@ -941,7 +1004,7 @@ a.btn {
 .stat-card__label {
   margin: 0.15rem 0 0;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
 }
 
 .dashboard-grid {
@@ -958,12 +1021,13 @@ a.btn {
 }
 
 .panel-card {
-  background: rgba(22, 24, 34, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--app-panel-bg);
+  border: 1px solid var(--app-panel-border);
   border-radius: 14px;
   padding: 1.1rem 1.15rem 1.15rem;
   min-height: 200px;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: var(--app-panel-shadow);
+  color: var(--app-shell-text);
 }
 
 .panel-card h3 {
@@ -984,7 +1048,7 @@ a.btn {
   gap: 0.65rem;
   padding: 0.5rem 0.35rem;
   border-radius: 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  border-bottom: 1px solid var(--app-list-row-border);
 }
 
 .list-row:last-child {
@@ -1023,13 +1087,13 @@ a.btn {
 .list-row__sub {
   display: block;
   font-size: 0.72rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
   margin-top: 0.1rem;
 }
 
 .list-empty {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--app-shell-muted);
   padding: 0.5rem 0;
 }
 
@@ -1043,10 +1107,11 @@ a.btn {
 }
 
 .data-card {
-  background: rgba(22, 24, 34, 0.85);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--app-data-card-bg);
+  border: 1px solid var(--app-data-card-border);
   border-radius: 14px;
   overflow: hidden;
+  color: var(--app-shell-text);
 }
 
 .data-table-wrap {
@@ -1063,12 +1128,12 @@ a.btn {
 .data-table td {
   padding: 0.65rem 0.85rem;
   text-align: left;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  border-bottom: 1px solid var(--app-table-border);
 }
 
 .data-table th {
-  background: rgba(0, 0, 0, 0.25);
-  color: var(--text-muted);
+  background: var(--app-table-th-bg);
+  color: var(--app-shell-muted);
   font-weight: 600;
   font-size: 0.75rem;
   text-transform: uppercase;
@@ -1076,7 +1141,7 @@ a.btn {
 }
 
 .data-table tr:hover td {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--app-table-row-hover);
 }
 
 .data-table .cell-actions {
@@ -1087,7 +1152,7 @@ a.btn {
 .data-table a.linkish {
   background: none;
   border: none;
-  color: var(--orange-bright);
+  color: var(--app-nav-active-color);
   cursor: pointer;
   font-size: inherit;
   font-family: inherit;
@@ -1106,8 +1171,8 @@ a.btn {
   gap: 0.75rem;
   align-items: end;
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-  background: rgba(0, 0, 0, 0.15);
+  border-top: 1px solid var(--app-inline-form-border);
+  background: var(--app-inline-form-bg);
 }
 
 .inline-form .full {
@@ -1126,42 +1191,44 @@ a.btn {
   align-items: center;
   gap: 0.35rem;
   font-size: 0.82rem;
-  color: #c5c9d0;
+  color: var(--app-chk-label);
   cursor: pointer;
 }
 
+/* 좁은 화면에서도 관리자 앱(body.app-body) 좌측 대시보드 네비는 항상 표시(오프캔버스 미사용) */
 @media (max-width: 960px) {
   .app-column {
     position: relative;
     z-index: 1;
   }
 
-  .app-sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    transform: translateX(-100%);
-    transition: transform 0.2s ease;
-    box-shadow: 8px 0 32px rgba(0, 0, 0, 0.45);
-    z-index: 50;
+  body.app-body .app-sidebar {
+    position: relative;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    transform: none;
+    width: 240px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    box-shadow: none;
+    z-index: 100;
   }
 
-  .app-layout--nav-open .app-sidebar {
-    transform: translateX(0);
+  body.app-body .app-menu-toggle {
+    display: none;
   }
 
-  .app-menu-toggle {
-    display: inline-flex;
+  body.app-body .app-layout.app-layout--nav-open::after {
+    display: none;
   }
 
-  .app-layout--nav-open::after {
-    content: "";
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 44;
-    pointer-events: auto;
+  body.app-body .app-layout {
+    display: flex;
+    flex-direction: row;
+    align-items: stretch;
+    min-width: 0;
   }
 }
 

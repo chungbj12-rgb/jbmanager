@@ -1,7 +1,8 @@
 """
 로컬 미리보기: 루트의 .html / .css / .js 변경 시 SSE로 클라이언트 새로고침.
+루트 URL(/)은 login.html로 연결됩니다. 스플래시는 /index.html 입니다.
 사용: python preview_server.py
-      python preview_server.py --open   # 브라우저에서 index 열기
+      python preview_server.py --open   # 브라우저에서 login 열기
 """
 from __future__ import annotations
 
@@ -85,7 +86,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             return
 
         if self.path in ("/", "/?"):
-            self.path = "/index.html"
+            self.path = "/login.html"
         super().do_GET()
 
 
@@ -94,7 +95,7 @@ def main() -> None:
     parser.add_argument(
         "--open",
         action="store_true",
-        help="Open http://127.0.0.1:%s/index.html in default browser" % PORT,
+        help="Open http://127.0.0.1:%s/login.html in default browser" % PORT,
     )
     args = parser.parse_args()
 
@@ -102,13 +103,14 @@ def main() -> None:
     if args.open:
 
         def _open_browser() -> None:
-            webbrowser.open(f"http://127.0.0.1:{PORT}/index.html")
+            webbrowser.open(f"http://127.0.0.1:{PORT}/login.html")
 
         threading.Timer(0.7, _open_browser).start()
 
     with socketserver.ThreadingTCPServer(("127.0.0.1", PORT), Handler) as httpd:
         httpd.allow_reuse_address = True
-        print(f"미리보기: http://127.0.0.1:{PORT}/index.html")
+        print(f"로그인(미리보기 기본): http://127.0.0.1:{PORT}/login.html")
+        print(f"스플래시: http://127.0.0.1:{PORT}/index.html")
         print(f"스튜디오: http://127.0.0.1:{PORT}/studio.html")
         print("PREVIEW_SERVER_READY", flush=True)
         print("중지: Ctrl+C")

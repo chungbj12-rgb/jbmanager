@@ -7,8 +7,27 @@
   var BIRTH_RE = /^\d{6}$/;
   var EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  var _sbProfile = null;
+  var _sbStaffListCache = null;
+  var _sessionWaitPromise = null;
+
   function config() {
     return global.JBAuthConfig || { storageMode: "local", apiBaseUrl: "" };
+  }
+
+  function isSupabaseMode() {
+    var c = config();
+    return c.storageMode === "supabase" && !!c.supabaseUrl && !!c.supabaseAnonKey;
+  }
+
+  /** Supabase: waitForSession(세션 복원) 끝나기 전엔 requireAuth가 로그인으로 보내지 않음 — 사이드바를 먼저 그릴 때 필요 */
+  var _sbAuthHydrated = !isSupabaseMode();
+
+  /** 전화번호 로그인을 Supabase Auth 이메일로 매핑 (고유해야 함) */
+  function phoneToAuthEmail(phone) {
+    var d = normalizePhone(phone).replace(/\D/g, "");
+    var dom = config().syntheticEmailDomain || "jbphonelogin.local";
+    return "u" + d + "@" + dom;
   }
 
   function ensureSubtle() {
@@ -162,14 +181,113 @@
     replaceUser(u);
   }
 
+  async function refreshStaffCache() {
+    if (!isSupabaseMode()) return;
+    var client = global.JBSupabase && global.JBSupabase.getClient();
+    if (!client) return;
+    var res = await client.from("profiles").select("*").order("created_at", { ascending: true });
+    if (res.error) {
+      console.error(res.error);
+      return;
+    }
+    _sbStaffListCache = (res.data || []).map(function (row) {
+      return {
+        name: row.name,
+        phone: row.phone,
+        position: row.position,
+        email: row.email,
+        birth: row.birth,
+        createdAt: row.created_at || "",
+      };
+    });
+  }
+
+  async function restoreSupabaseSessionIfNeeded() {
+    if (!isSupabaseMode()) return;
+    var client = global.JBSupabase && global.JBSupabase.getClient();
+    if (!client) return;
+    var sess = await client.auth.getSession();
+    if (!sess.data.session) return;
+    var uid = sess.data.session.user.id;
+    var profRes = await client.from("profiles").select("*").eq("id", uid).maybeSingle();
+    if (profRes.data) {
+      _sbProfile = profRes.data;
+      sessionStorage.setItem(STORAGE_SESSION, profRes.data.phone);
+    }
+    await refreshStaffCache();
+    if (global.JBRemoteSync && global.JBRemoteSync.pullAll) {
+      await global.JBRemoteSync.pullAll();
+    }
+    if (global.JBRemoteSync && global.JBRemoteSync.subscribeKv) {
+      global.JBRemoteSync.subscribeKv();
+    }
+  }
+
+  function waitForSession() {
+    if (!isSupabaseMode()) return Promise.resolve();
+    if (_sessionWaitPromise) return _sessionWaitPromise;
+    _sessionWaitPromise = restoreSupabaseSessionIfNeeded()
+      .catch(function (e) {
+        console.error(e);
+      })
+      .then(function () {
+        _sbAuthHydrated = true;
+      });
+    return _sessionWaitPromise;
+  }
+
   async function register(data) {
     if (config().storageMode === "api") {
       return {
         ok: false,
         errors: [
-          'storageMode가 "api"입니다. 서버 연동을 구현하거나 auth-config.js에서 "local"로 바꿔주세요.',
+          'storageMode가 "api"입니다. auth-config.js에서 "local" 또는 "supabase"를 사용하세요.',
         ],
       };
+    }
+
+    if (isSupabaseMode()) {
+      var v = validateSignup(data);
+      if (!v.ok) return { ok: false, errors: v.errors };
+      var client = global.JBSupabase && global.JBSupabase.getClient();
+      if (!client) {
+        return { ok: false, errors: ["Supabase 클라이언트를 만들 수 없습니다."] };
+      }
+      var dup = await client.from("profiles").select("id").eq("phone", v.phone).maybeSingle();
+      if (dup.data) return { ok: false, errors: ["이미 가입된 전화번호입니다."] };
+      var email = phoneToAuthEmail(v.phone);
+      var sign = await client.auth.signUp({
+        email: email,
+        password: data.password,
+        options: {
+          data: {
+            name: data.name.trim(),
+            phone: v.phone,
+          },
+        },
+      });
+      if (sign.error) {
+        return { ok: false, errors: [sign.error.message || "가입에 실패했습니다."] };
+      }
+      var uid = sign.data.user && sign.data.user.id;
+      if (!uid) {
+        return {
+          ok: false,
+          errors: ["이메일 확인이 켜져 있으면 메일을 확인한 뒤 다시 로그인해 주세요. (Supabase에서 이메일 확인을 끄면 바로 가입됩니다.)"],
+        };
+      }
+      var ins = await client.from("profiles").insert({
+        id: uid,
+        phone: v.phone,
+        name: data.name.trim(),
+        birth: data.birth.trim(),
+        email: data.email.trim(),
+        position: data.position.trim(),
+      });
+      if (ins.error) {
+        return { ok: false, errors: [ins.error.message || "프로필 저장에 실패했습니다."] };
+      }
+      return { ok: true };
     }
 
     var subtle = ensureSubtle();
@@ -203,9 +321,35 @@
     if (config().storageMode === "api") {
       return {
         ok: false,
-        error:
-          'API 모드는 아직 연결되지 않았습니다. auth-config.js에서 storageMode를 "local"로 두세요.',
+        error: 'API 모드는 사용할 수 없습니다. auth-config.js를 확인하세요.',
       };
+    }
+
+    if (isSupabaseMode()) {
+      var pv = validateLoginPhone(phoneInput);
+      if (!pv.ok) return { ok: false, error: pv.error };
+      var client = global.JBSupabase && global.JBSupabase.getClient();
+      if (!client) return { ok: false, error: "Supabase 클라이언트를 만들 수 없습니다." };
+      var email = phoneToAuthEmail(pv.phone);
+      var res = await client.auth.signInWithPassword({ email: email, password: password });
+      if (res.error) {
+        return { ok: false, error: "전화번호 또는 비밀번호가 올바르지 않습니다." };
+      }
+      var uid = res.data.user.id;
+      var profRes = await client.from("profiles").select("*").eq("id", uid).maybeSingle();
+      if (!profRes.data) {
+        return { ok: false, error: "프로필을 찾을 수 없습니다. 관리자에게 문의하세요." };
+      }
+      _sbProfile = profRes.data;
+      sessionStorage.setItem(STORAGE_SESSION, profRes.data.phone);
+      await refreshStaffCache();
+      if (global.JBRemoteSync && global.JBRemoteSync.pullAll) {
+        await global.JBRemoteSync.pullAll();
+      }
+      if (global.JBRemoteSync && global.JBRemoteSync.subscribeKv) {
+        global.JBRemoteSync.subscribeKv();
+      }
+      return { ok: true, user: publicUser(profRes.data) };
     }
 
     var subtle = ensureSubtle();
@@ -248,6 +392,13 @@
 
   function logout() {
     sessionStorage.removeItem(STORAGE_SESSION);
+    _sbProfile = null;
+    _sbStaffListCache = null;
+    _sessionWaitPromise = null;
+    if (isSupabaseMode()) {
+      var client = global.JBSupabase && global.JBSupabase.getClient();
+      if (client) client.auth.signOut();
+    }
   }
 
   function getSessionPhone() {
@@ -255,12 +406,28 @@
   }
 
   function getCurrentUser() {
+    if (isSupabaseMode()) {
+      if (!_sbProfile) return null;
+      return publicUser(_sbProfile);
+    }
     var phone = getSessionPhone();
     if (!phone) return null;
     return publicUser(findByPhone(phone));
   }
 
   function listStaffSafe() {
+    if (isSupabaseMode()) {
+      return (_sbStaffListCache || []).map(function (u) {
+        return {
+          name: u.name,
+          phone: u.phone,
+          position: u.position,
+          email: u.email,
+          birth: u.birth,
+          createdAt: u.createdAt || "",
+        };
+      });
+    }
     return getUsers().map(function (u) {
       return {
         name: u.name,
@@ -275,7 +442,63 @@
 
   async function updateCurrentUserProfile(patch) {
     if (config().storageMode === "api") {
-      return { ok: false, error: 'API 모드에서는 지원하지 않습니다. auth-config.js에서 "local"로 사용해주세요.' };
+      return { ok: false, error: "API 모드는 지원하지 않습니다." };
+    }
+
+    if (isSupabaseMode()) {
+      var client = global.JBSupabase && global.JBSupabase.getClient();
+      if (!client) return { ok: false, error: "Supabase 클라이언트를 만들 수 없습니다." };
+      var sess = await client.auth.getSession();
+      if (!sess.data.session) return { ok: false, error: "로그인이 필요합니다." };
+      var uid = sess.data.session.user.id;
+
+      var newPhone = normalizePhone(patch.phone);
+      if (!PHONE_RE.test(newPhone)) {
+        return { ok: false, error: "전화번호는 010-XXXX-XXXX 형식으로 입력해주세요." };
+      }
+      var email = (patch.email || "").trim();
+      if (!EMAIL_RE.test(email)) {
+        return { ok: false, error: "올바른 이메일 주소를 입력해주세요." };
+      }
+      var pw = String(patch.password || "");
+      var pw2 = String(patch.passwordConfirm || "");
+      if (pw.length > 0 || pw2.length > 0) {
+        if (pw.length < 8) {
+          return { ok: false, error: "새 비밀번호는 8자 이상이어야 합니다." };
+        }
+        if (pw !== pw2) {
+          return { ok: false, error: "새 비밀번호 확인이 일치하지 않습니다." };
+        }
+      }
+
+      if (newPhone !== _sbProfile.phone) {
+        var taken = await client.from("profiles").select("id").eq("phone", newPhone).maybeSingle();
+        if (taken.data) return { ok: false, error: "이미 다른 계정에서 사용 중인 전화번호입니다." };
+        var newAuthEmail = phoneToAuthEmail(newPhone);
+        var upEm = await client.auth.updateUser({ email: newAuthEmail });
+        if (upEm.error) return { ok: false, error: upEm.error.message || "전화번호(로그인) 변경에 실패했습니다." };
+      }
+
+      if (pw.length > 0) {
+        var upPw = await client.auth.updateUser({ password: pw });
+        if (upPw.error) return { ok: false, error: upPw.error.message || "비밀번호 변경에 실패했습니다." };
+      }
+
+      var upd = await client
+        .from("profiles")
+        .update({
+          phone: newPhone,
+          email: email,
+        })
+        .eq("id", uid)
+        .select()
+        .single();
+      if (upd.error) return { ok: false, error: upd.error.message || "저장에 실패했습니다." };
+
+      _sbProfile = upd.data;
+      sessionStorage.setItem(STORAGE_SESSION, newPhone);
+      await refreshStaffCache();
+      return { ok: true, user: publicUser(_sbProfile) };
     }
 
     var subtle = ensureSubtle();
@@ -340,6 +563,10 @@
     return { ok: true, user: publicUser(findByPhone(newPhone)) };
   }
 
+  function isAuthGateReady() {
+    return _sbAuthHydrated;
+  }
+
   global.JBAuth = {
     normalizePhone: normalizePhone,
     validateSignup: validateSignup,
@@ -351,5 +578,8 @@
     getUsers: getUsers,
     listStaffSafe: listStaffSafe,
     updateCurrentUserProfile: updateCurrentUserProfile,
+    waitForSession: waitForSession,
+    refreshStaffCache: refreshStaffCache,
+    isAuthGateReady: isAuthGateReady,
   };
 })(window);

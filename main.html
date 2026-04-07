@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
   <title>대시보드 — 제이비스포츠 관리</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -62,17 +62,35 @@
             <p class="list-empty" id="classHint">오늘 예정된 클래스가 없습니다.</p>
             <div class="list-rows" id="classList"></div>
           </section>
+          <section class="panel-card" aria-labelledby="protoTitle">
+            <h3 id="protoTitle">보호대신청</h3>
+            <p style="font-size: 0.88rem; color: var(--app-shell-muted, #9aa3b2); margin: 0 0 0.65rem">
+              무릎·팔꿈치 보호대만 접수 (S/M/L). 신청서링크에 웹 접수 주소를 등록하면 학부모 신청이 명단에 반영됩니다.
+            </p>
+            <p style="margin: 0 0 0.5rem">
+              <a href="protective.html" style="color: #ff8f5a; font-weight: 800; text-decoration: none">보호대신청 관리 →</a>
+            </p>
+            <p class="list-empty" id="protoPending" style="margin: 0; font-size: 0.86rem"></p>
+          </section>
         </div>
       </main>
     </div>
   </div>
 
+    <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="app-shell.js"></script>
   <script>
     (function () {
+      JBAppShell.init({ activeNav: "dashboard", pageTitle: "제이비스포츠 관리프로그램" });
+
+      function run() {
       JBAppShell.init({ activeNav: "dashboard", pageTitle: "제이비스포츠 관리프로그램" });
       if (!JBAuth.getCurrentUser()) return;
 
@@ -84,6 +102,16 @@
         weekday: "long",
       });
       document.getElementById("dashTodayLabel").textContent = fmt.format(now);
+
+      var pendingProto = JBData.getProtectiveRequests().filter(function (x) {
+        return (x.status || "").trim() !== "수령완료";
+      }).length;
+      var protoEl = document.getElementById("protoPending");
+      if (protoEl) {
+        protoEl.textContent = pendingProto
+          ? "진행 중인 신청: " + pendingProto + "건 (미수령·접수·준비중)"
+          : "진행 중인 보호대 신청이 없습니다.";
+      }
 
       var s = JBData.dashboardStats(now);
       document.getElementById("statMembers").textContent = s.totalMembers + "명";
@@ -141,6 +169,12 @@
             );
           })
           .join("");
+      }
+      }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
       }
     })();
   </script>

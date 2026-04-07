@@ -2,12 +2,13 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
   <title>보호대신청 — 제이비스포츠</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/protective-page.css" />
 </head>
 <body class="app-body">
   <div class="app-layout" id="appLayout">
@@ -15,112 +16,193 @@
     <div class="app-column">
       <header class="app-topbar" id="app-topbar"></header>
       <main class="app-content">
-        <div class="app-page-head">
+        <div class="app-page-head protective-page-head">
           <h2>보호대신청</h2>
-          <p>보호대 사이즈·수령 등 신청 내역을 관리합니다</p>
+          <p>무릎·팔꿈치 보호대, 사이즈 S/M/L</p>
         </div>
-        <div class="data-card">
-          <div class="data-table-wrap">
-            <table class="data-table">
+
+        <div class="protective-top-split">
+          <section class="protective-inv-card" aria-labelledby="invTitle">
+            <div class="protective-inv-head">
+              <h3 id="invTitle" class="protective-inv-card__title">재고</h3>
+              <button
+                type="button"
+                class="protective-inv-add-btn"
+                id="btnOpenInvModal"
+                title="품목·사이즈별 재고 입력"
+                onclick="window.JBProtectiveOpenStockInline && window.JBProtectiveOpenStockInline()"
+              >
+                + 추가
+              </button>
+            </div>
+            <p class="protective-inv-lead">표에 반영 · <strong>추가</strong>로 수정</p>
+            <div class="protective-inv-table-wrap">
+              <table class="protective-inv-table" aria-label="보호대 재고">
+                <thead>
+                  <tr>
+                    <th scope="col"></th>
+                    <th scope="col">S</th>
+                    <th scope="col">M</th>
+                    <th scope="col">L</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row" title="무릎보호대">무릎</th>
+                    <td><span class="protective-inv-num" id="dispKneeS">0</span></td>
+                    <td><span class="protective-inv-num" id="dispKneeM">0</span></td>
+                    <td><span class="protective-inv-num" id="dispKneeL">0</span></td>
+                  </tr>
+                  <tr>
+                    <th scope="row" title="팔꿈치보호대">팔꿈치</th>
+                    <td><span class="protective-inv-num" id="dispElbowS">0</span></td>
+                    <td><span class="protective-inv-num" id="dispElbowM">0</span></td>
+                    <td><span class="protective-inv-num" id="dispElbowL">0</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="protective-link-card" aria-labelledby="linkTitle">
+            <h3 id="linkTitle" class="protective-link-card__title">학부모 신청 연동</h3>
+            <p class="protective-link-card__hint">
+              <strong>신청서링크</strong>에 제목에 「보호대」가 포함된 항목을 만들고, 아래 주소를 URL로 등록하세요. 접수 시 명단에 반영됩니다.
+            </p>
+            <div class="protective-link-row">
+              <label class="protective-link-label" for="applyUrlField">웹 접수 URL</label>
+              <div class="protective-link-copy">
+                <input type="text" readonly class="auth-input protective-link-input" id="applyUrlField" />
+                <button type="button" class="protective-link-copy-btn" id="btnCopyApplyUrl" title="복사">복사</button>
+              </div>
+            </div>
+            <p class="protective-link-card__sub" id="registeredLinkLine"></p>
+          </section>
+        </div>
+
+        <section id="editStockSection" class="protective-stock-edit" hidden aria-labelledby="editStockTitle">
+          <h4 id="editStockTitle" class="protective-stock-edit__title">사이즈별 수량 수정</h4>
+          <form id="editStockForm" class="protective-stock-edit__form"></form>
+          <div class="protective-stock-edit__actions">
+            <button type="button" class="btn btn--primary protective-inv-dialog__btn" id="saveStockBtn">저장</button>
+            <button type="button" class="btn btn--secondary protective-inv-dialog__btn" id="cancelStockBtn">취소</button>
+          </div>
+        </section>
+
+        <section class="protective-list-card" aria-labelledby="protListTitle">
+          <h3 id="protListTitle" class="protective-list-card__title">보호대 신청자 명단</h3>
+
+          <div class="protective-list-toolbar">
+            <div class="protective-list-tabs" role="tablist" aria-label="명단 구분">
+              <button type="button" class="prot-tab prot-tab--active" id="tabProtPending" role="tab" aria-selected="true">
+                신청현황
+              </button>
+              <button type="button" class="prot-tab" id="tabProtDelivered" role="tab" aria-selected="false">전달완료</button>
+            </div>
+            <div class="protective-list-toolbar__right">
+              <span class="prot-count-total"
+                >전체 신청: <strong id="protCountNum" class="prot-count-total__num">0</strong>명</span
+              >
+              <div class="prot-search-wrap">
+                <span class="prot-search-icon" aria-hidden="true"></span>
+                <input
+                  type="search"
+                  id="protSearch"
+                  class="prot-search-input"
+                  placeholder="회원이름으로 검색..."
+                  autocomplete="off"
+                />
+              </div>
+              <button type="button" class="prot-btn-delete" id="btnProtBulkDelete" hidden disabled>삭제</button>
+              <button type="button" class="prot-btn-manual" id="btnProtManualAdd">수동 등록</button>
+            </div>
+          </div>
+
+          <div class="prot-table-wrap">
+            <table class="prot-table">
               <thead>
                 <tr>
-                  <th>신청자</th>
-                  <th>품목/사이즈</th>
-                  <th>신청일</th>
-                  <th>상태</th>
-                  <th></th>
+                  <th scope="col" class="prot-th-check">
+                    <input type="checkbox" id="protSelectAll" aria-label="전체 선택" />
+                  </th>
+                  <th scope="col">이름</th>
+                  <th scope="col">전화번호</th>
+                  <th scope="col">무릎보호대</th>
+                  <th scope="col">팔꿈치보호대</th>
+                  <th scope="col">입금여부</th>
+                  <th scope="col">전달여부</th>
                 </tr>
               </thead>
               <tbody id="tbody"></tbody>
             </table>
+            <p id="protEmptyState" class="prot-empty" hidden>검색 결과가 없습니다.</p>
           </div>
-          <form class="inline-form" id="f">
-            <div>
-              <label class="auth-label" for="who">신청자</label>
-              <input class="auth-input" id="who" required />
+        </section>
+
+        <div id="protManualModal" class="protective-inv-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="protManualTitle">
+          <div class="protective-inv-dialog protective-inv-dialog--manual">
+            <div class="protective-inv-dialog__head">
+              <h4 id="protManualTitle">수동 등록</h4>
+              <button type="button" class="protective-inv-dialog__close" id="protManualClose" aria-label="닫기">×</button>
             </div>
-            <div>
-              <label class="auth-label" for="item">품목·사이즈</label>
-              <input class="auth-input" id="item" placeholder="예: 무릎 M" />
-            </div>
-            <div>
-              <label class="auth-label" for="d">신청일</label>
-              <input class="auth-input" id="d" type="date" />
-            </div>
-            <div>
-              <label class="auth-label" for="st">상태</label>
-              <select class="auth-input auth-select" id="st" style="padding-right: 2rem">
-                <option>접수</option>
-                <option>준비중</option>
-                <option>수령완료</option>
-              </select>
-            </div>
-            <div><button type="submit" class="btn btn--primary">추가</button></div>
-          </form>
+            <form class="prot-manual-form" id="f">
+              <div class="prot-manual-form__grid">
+                <div>
+                  <label class="auth-label" for="who">신청자</label>
+                  <input class="auth-input" id="who" required />
+                </div>
+                <div>
+                  <label class="auth-label" for="item">품목</label>
+                  <select class="auth-input auth-select" id="item" required>
+                    <option value="knee">무릎보호대</option>
+                    <option value="elbow">팔꿈치보호대</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="auth-label" for="sz">사이즈</label>
+                  <select class="auth-input auth-select" id="sz" required>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="auth-label" for="phone">연락처</label>
+                  <input class="auth-input" id="phone" placeholder="010-0000-0000" />
+                </div>
+                <div>
+                  <label class="auth-label" for="d">신청일</label>
+                  <input class="auth-input" id="d" type="date" />
+                </div>
+                <div>
+                  <label class="auth-label" for="st">상태</label>
+                  <select class="auth-input auth-select" id="st" style="padding-right: 2rem">
+                    <option>접수</option>
+                    <option>준비중</option>
+                    <option>수령완료</option>
+                  </select>
+                </div>
+              </div>
+              <div class="prot-manual-form__actions">
+                <button type="button" class="btn btn--secondary protective-inv-dialog__btn" id="protManualCancel">취소</button>
+                <button type="submit" class="btn btn--primary protective-inv-dialog__btn">추가</button>
+              </div>
+            </form>
+          </div>
         </div>
       </main>
     </div>
   </div>
+  <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="app-shell.js"></script>
-  <script>
-    (function () {
-      JBAppShell.init({ activeNav: "protective", pageTitle: "제이비스포츠 관리프로그램" });
-      if (!JBAuth.getCurrentUser()) return;
-      document.getElementById("d").value = JBData.dateKey(new Date());
-      var tb = document.getElementById("tbody");
-
-      function render() {
-        tb.innerHTML = JBData.getProtectiveRequests()
-          .slice()
-          .reverse()
-          .map(function (r) {
-            return (
-              "<tr><td>" +
-              (r.applicantName || "") +
-              "</td><td>" +
-              (r.itemSpec || "") +
-              "</td><td>" +
-              (r.requestDate || "") +
-              "</td><td>" +
-              (r.status || "") +
-              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
-              r.id +
-              '">삭제</button></td></tr>'
-            );
-          })
-          .join("");
-      }
-
-      tb.addEventListener("click", function (e) {
-        if (e.target.dataset.id && confirm("삭제할까요?")) {
-          JBData.saveProtectiveRequests(
-            JBData.getProtectiveRequests().filter(function (x) { return x.id !== e.target.dataset.id; })
-          );
-          render();
-        }
-      });
-
-      document.getElementById("f").addEventListener("submit", function (e) {
-        e.preventDefault();
-        var list = JBData.getProtectiveRequests();
-        list.push({
-          id: "pr-" + Date.now(),
-          applicantName: document.getElementById("who").value.trim(),
-          itemSpec: document.getElementById("item").value.trim(),
-          requestDate: document.getElementById("d").value,
-          status: document.getElementById("st").value,
-        });
-        JBData.saveProtectiveRequests(list);
-        e.target.reset();
-        document.getElementById("d").value = JBData.dateKey(new Date());
-        render();
-      });
-      render();
-    })();
-  </script>
+  <script src="js/protective-page.js"></script>
   <script src="live-reload.js"></script>
 </body>
 </html>

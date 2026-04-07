@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=1280, initial-scale=1.0, minimum-scale=0.25, maximum-scale=5" />
   <title>신청서링크 — 제이비스포츠</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,7 +17,11 @@
       <main class="app-content">
         <div class="app-page-head">
           <h2>신청서링크</h2>
-          <p>구글폼·노션 등 외부 신청 페이지 URL을 보관합니다</p>
+          <p>
+            구글폼·노션 등 외부 신청 페이지 URL을 보관합니다.
+            <strong>보호대신청</strong>은 제목에 「보호대」가 들어가는 항목의 URL에
+            <code style="font-size:0.85em">protective-apply.html</code> 주소를 넣으면, 학부모 접수가 보호대신청 명단에 연동됩니다.
+          </p>
         </div>
         <div class="data-card">
           <div class="data-table-wrap">
@@ -52,13 +56,19 @@
       </main>
     </div>
   </div>
+    <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
   <script src="auth.js"></script>
   <script src="app-data.js"></script>
   <script src="app-shell.js"></script>
   <script>
     (function () {
-      JBAppShell.init({ activeNav: "applications", pageTitle: "제이비스포츠 관리프로그램" });
+      function run() {
+JBAppShell.init({ activeNav: "applications", pageTitle: "제이비스포츠 관리프로그램" });
       if (!JBAuth.getCurrentUser()) return;
       var tb = document.getElementById("tbody");
 
@@ -83,10 +93,18 @@
       }
 
       tb.addEventListener("click", function (e) {
-        if (e.target.dataset.id && confirm("삭제할까요?")) {
-          JBData.saveAppLinks(JBData.getAppLinks().filter(function (x) { return x.id !== e.target.dataset.id; }));
+        var id = e.target.dataset && e.target.dataset.id;
+        if (!id) return;
+        e.preventDefault();
+        JBUI.confirm("이 항목을 삭제할까요?", {
+          title: "삭제 확인",
+          confirmText: "삭제",
+          cancelText: "취소",
+        }).then(function (ok) {
+          if (!ok) return;
+          JBData.saveAppLinks(JBData.getAppLinks().filter(function (x) { return x.id !== id; }));
           render();
-        }
+        });
       });
 
       document.getElementById("f").addEventListener("submit", function (e) {
@@ -103,6 +121,12 @@
         render();
       });
       render();
+    }
+      if (JBAuth.waitForSession) {
+        JBAuth.waitForSession().then(run);
+      } else {
+        run();
+      }
     })();
   </script>
   <script src="live-reload.js"></script>

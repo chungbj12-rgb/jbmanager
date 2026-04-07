@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>셔틀 노선표 — 제이비스포츠</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/shuttle-public.css" />
+</head>
+<body class="shuttle-public-body">
+  <div id="pubRoot" class="shuttle-pub">
+    <div class="shuttle-pub__brand">제이비스포츠</div>
+    <h1 class="shuttle-pub__title">셔틀 노선표</h1>
+    <div class="shuttle-pub__filters">
+      <div>
+        <label for="pubDay">요일</label>
+        <select id="pubDay" class="shuttle-pub__select" aria-label="요일 선택">
+          <option value="1">월요일</option>
+          <option value="2">화요일</option>
+          <option value="3">수요일</option>
+          <option value="4">목요일</option>
+          <option value="5">금요일</option>
+          <option value="6">토요일</option>
+          <option value="0">일요일</option>
+        </select>
+      </div>
+      <div>
+        <label for="pubClass">클래스</label>
+        <select id="pubClass" class="shuttle-pub__select" aria-label="클래스 선택"></select>
+      </div>
+    </div>
+    <div id="pubPanel" class="shuttle-pub__panel">
+      <p class="shuttle-pub__empty">불러오는 중…</p>
+    </div>
+  </div>
+
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
+  <script src="js/jb-supabase-client.js"></script>
+  <script src="js/jb-remote-sync.js"></script>
+  <script src="app-preferences.js"></script>
+  <script src="app-data.js"></script>
+  <script src="js/shuttle-public.js"></script>
+</body>
+</html>
