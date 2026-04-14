@@ -1,5 +1,72 @@
 /* 설정 페이지 전용 */
 
+.settings-connect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  margin-bottom: 1rem;
+}
+
+.settings-connect-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem 0.85rem;
+  flex-wrap: wrap;
+  font-size: 0.88rem;
+  line-height: 1.45;
+}
+
+.settings-connect-row__label {
+  min-width: 6.5rem;
+  color: var(--app-shell-muted);
+  font-weight: 600;
+}
+
+.settings-connect-row__value {
+  color: var(--app-shell-text);
+  word-break: break-all;
+}
+
+.settings-connect-dot {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.15);
+}
+
+.settings-connect-dot--ok {
+  background: #3fb950;
+}
+
+.settings-connect-dot--warn {
+  background: #d29922;
+}
+
+.settings-connect-dot--off {
+  background: #8b949e;
+}
+
+.settings-connect-dot--err {
+  background: #f85149;
+}
+
+.settings-connect-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.7rem;
+  border-radius: 10px;
+  border: 1px solid var(--app-panel-border);
+  background: var(--app-inline-form-bg);
+  font-weight: 700;
+  font-size: 0.92rem;
+}
+
+.settings-connect-refresh {
+  margin-top: 0.25rem;
+}
+
 .settings-stack {
   max-width: 40rem;
   display: flex;

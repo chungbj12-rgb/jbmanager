@@ -216,6 +216,131 @@
     });
   }
 
+  function hostFromUrl(u) {
+    try {
+      return new URL(u).host;
+    } catch (e) {
+      return "";
+    }
+  }
+
+  function pingSupabaseHealth(baseUrl) {
+    var u = String(baseUrl || "").replace(/\/$/, "");
+    if (!u) return Promise.resolve(null);
+    return fetch(u + "/auth/v1/health", { method: "GET", cache: "no-store" })
+      .then(function (r) {
+        return r.ok;
+      })
+      .catch(function () {
+        return false;
+      });
+  }
+
+  function connRow(label, valueInnerHtml) {
+    return (
+      '<div class="settings-connect-row">' +
+      '<span class="settings-connect-row__label">' +
+      escapeHtml(label) +
+      "</span>" +
+      '<span class="settings-connect-row__value">' +
+      valueInnerHtml +
+      "</span></div>"
+    );
+  }
+
+  function updateDataLeadForMode(cloudConfigured) {
+    var el = document.getElementById("settingsDataLead");
+    if (!el || !cloudConfigured) return;
+    el.innerHTML =
+      "Supabase mode: data may sync with your project. Reset below reseeds demo data in this browser.";
+  }
+
+  function renderConnectionStatus() {
+    var root = document.getElementById("jbConnectionStatus");
+    if (!root) return;
+    var cfg = global.JBAuthConfig || {};
+    var mode = cfg.storageMode || "local";
+    var url = cfg.supabaseUrl || "";
+    var hasKey = !!(cfg.supabaseAnonKey && String(cfg.supabaseAnonKey).length > 8);
+    var client =
+      global.JBSupabase && typeof JBSupabase.getClient === "function"
+        ? JBSupabase.getClient()
+        : null;
+
+    var body = "";
+    var dotClass = "settings-connect-dot--off";
+    var summary = "Local only (this browser)";
+
+    if (mode === "supabase") {
+      if (url && hasKey) {
+        dotClass = "settings-connect-dot--warn";
+        summary = "Checking project...";
+        body +=
+          connRow("Storage", "Supabase") +
+          connRow("Project", escapeHtml(hostFromUrl(url) || url)) +
+          connRow("Anon key", hasKey ? "Set" : "Missing") +
+          connRow("SDK client", escapeHtml(client ? "Ready" : "Not ready")) +
+          connRow("Auth API", '<span id="jbConnPing">...</span>');
+      } else {
+        dotClass = "settings-connect-dot--err";
+        summary = "Supabase mode but URL/key missing";
+        body +=
+          connRow("Storage", "supabase (incomplete)") +
+          connRow("Project", url ? escapeHtml(hostFromUrl(url) || url) : "\u2014") +
+          connRow("Anon key", hasKey ? "Set" : "Missing");
+      }
+    } else {
+      body +=
+        connRow("Storage", escapeHtml("local")) +
+        connRow(
+          "Note",
+          "Green dot in Cursor MCP = editor only. This app needs URL + anon key in auth-config or Vercel env."
+        );
+    }
+
+    root.innerHTML =
+      '<div class="settings-connect-summary">' +
+      '<span class="settings-connect-dot ' +
+      dotClass +
+      '" aria-hidden="true"></span>' +
+      "<span>" +
+      escapeHtml(summary) +
+      "</span></div>" +
+      body;
+
+    updateDataLeadForMode(mode === "supabase" && !!url && hasKey);
+
+    if (mode === "supabase" && url && hasKey) {
+      pingSupabaseHealth(url).then(function (ok) {
+        var pingEl = document.getElementById("jbConnPing");
+        if (pingEl) {
+          pingEl.textContent = ok ? "OK" : "Failed";
+        }
+        var sumSpan = root.querySelector(".settings-connect-summary span:last-child");
+        var dot = root.querySelector(".settings-connect-dot");
+        if (ok && client) {
+          if (sumSpan) sumSpan.textContent = "Connected (like MCP: app reaches Supabase)";
+          if (dot) dot.className = "settings-connect-dot settings-connect-dot--ok";
+        } else if (ok) {
+          if (sumSpan) sumSpan.textContent = "Server up, SDK check needed";
+          if (dot) dot.className = "settings-connect-dot settings-connect-dot--warn";
+        } else {
+          if (sumSpan) sumSpan.textContent = "Cannot reach project";
+          if (dot) dot.className = "settings-connect-dot settings-connect-dot--err";
+        }
+      });
+    }
+  }
+
+  function wireConnectionRefresh() {
+    var btn = document.getElementById("jbConnectionRefresh");
+    if (!btn) return;
+    btn.addEventListener("click", function () {
+      renderConnectionStatus();
+      showToast("Connection rechecked.");
+    });
+  }
+
   function init() {
     if (!global.JBPreferences) return;
     syncThemeRadios();
@@ -224,6 +349,8 @@
     wireTheme();
     wireFont();
     wireResetNav();
+    renderConnectionStatus();
+    wireConnectionRefresh();
   }
 
   global.JBSettingsPage = {
@@ -231,5 +358,6 @@
     showToast: showToast,
     FONT_KEYS: FONT_KEYS,
     FONT_LABELS: FONT_LABELS,
+    renderConnectionStatus: renderConnectionStatus,
   };
 })(window);

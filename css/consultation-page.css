@@ -1,0 +1,484 @@
+.consult-page {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  color: var(--app-shell-text);
+}
+
+.consult-page__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.consult-page__title {
+  margin: 0;
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.consult-page__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.consult-send-btn {
+  border: 1px solid rgba(255, 142, 83, 0.55);
+  background: linear-gradient(145deg, rgba(232, 90, 40, 0.94), rgba(255, 142, 83, 0.9));
+  color: #fff;
+  border-radius: 10px;
+  padding: 0.52rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.consult-layout {
+  min-height: calc(100vh - 180px);
+  border: 1px solid #1e2a4a;
+  border-radius: 14px;
+  background: #050a18;
+  display: grid;
+  grid-template-columns: 272px minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.consult-sidebar {
+  border-right: 1px solid #1b2744;
+  background: #060d1f;
+  display: flex;
+  flex-direction: column;
+}
+
+.consult-sidebar__top {
+  padding: 0.7rem 0.65rem 0.45rem;
+  border-bottom: 1px solid #182543;
+}
+
+.consult-class-filter {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.consult-class-filter select {
+  width: 100%;
+  background: #111a34;
+  color: #cfd7ec;
+  border: 1px solid #29375a;
+  border-radius: 8px;
+  height: 34px;
+  padding: 0 0.45rem;
+  font-size: 0.78rem;
+}
+
+.consult-class-filter .count {
+  color: #7b8eb6;
+  font-size: 0.78rem;
+  white-space: nowrap;
+}
+
+.consult-member-table-wrap {
+  padding: 0.35rem 0.3rem 0.55rem;
+  overflow: auto;
+}
+
+.consult-member-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  table-layout: fixed;
+}
+
+.consult-member-table thead th {
+  color: #6c82af;
+  font-size: 0.66rem;
+  text-align: left;
+  font-weight: 600;
+  padding: 0.34rem 0.25rem;
+  border-bottom: 1px solid #1b2744;
+  white-space: nowrap;
+}
+
+.consult-member-table th.cb,
+.consult-member-table td.cb {
+  width: 22px;
+  text-align: center;
+}
+
+.consult-member-table tbody tr {
+  border-bottom: 1px solid #111d36;
+  cursor: pointer;
+}
+
+.consult-member-table tbody tr:hover td {
+  background: #0f1d39;
+}
+
+.consult-member-table tbody tr.is-active td {
+  background: rgba(18, 126, 170, 0.33);
+}
+
+.consult-member-table td {
+  padding: 0.4rem 0.25rem;
+  color: #d8dff2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.consult-member-table th:nth-child(2),
+.consult-member-table td:nth-child(2) {
+  width: 38%;
+}
+
+.consult-member-table th:nth-child(3),
+.consult-member-table td:nth-child(3) {
+  width: 31%;
+}
+
+.consult-member-table th:nth-child(4),
+.consult-member-table td:nth-child(4) {
+  width: 31%;
+}
+
+.consult-main {
+  padding: 0.7rem;
+  background: #060b1a;
+}
+
+.consult-panel {
+  border: 1px solid rgba(100, 140, 200, 0.15);
+  border-radius: 12px;
+  min-height: 100%;
+  background: #0d1b2e;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  color: #c8d8ee;
+}
+
+.consult-student-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 0;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+}
+
+.consult-student-name {
+  margin: 0;
+  font-size: 1.55rem;
+  line-height: 1.05;
+  font-weight: 900;
+}
+
+.consult-student-meta {
+  margin: 0.2rem 0 0;
+  color: #8da0c4;
+  font-size: 0.82rem;
+}
+
+.consult-student-contact {
+  margin: 0.08rem 0 0;
+  color: #7f92ba;
+  font-size: 0.73rem;
+  text-align: right;
+}
+
+.consult-center {
+  display: flex;
+  flex-direction: row;
+  gap: 14px;
+  align-items: flex-start;
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.consult-radar-card {
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  padding: 0;
+  flex: 0 0 47%;
+  width: 47%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-left: 8px;
+}
+
+.consult-radar-card svg {
+  width: 98%;
+  max-width: 360px;
+  height: auto;
+  display: block;
+  margin-top: 0;
+  overflow: visible;
+}
+
+.consult-radar-labels text {
+  paint-order: stroke;
+  stroke: rgba(8, 20, 40, 0.85);
+  stroke-width: 1.3px;
+  letter-spacing: -0.01em;
+}
+
+.consult-empty,
+.consult-feedback,
+.consult-footer {
+  margin-top: 0.55rem;
+}
+
+.consult-empty[hidden],
+.consult-feedback[hidden],
+.consult-footer[hidden] {
+  display: none !important;
+}
+
+.consult-scores {
+  flex: 0 0 53%;
+  width: 53%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 0;
+  align-self: stretch;
+  padding-top: 2px;
+  margin-left: auto;
+  padding-right: 18px;
+}
+
+.consult-eval-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8f0fc;
+  margin-bottom: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.15);
+}
+
+.consult-score-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.08);
+}
+
+.consult-score-row:last-child {
+  border-bottom: 0;
+}
+
+.consult-score-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-right: 4px;
+}
+
+.consult-score-title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ddeaff;
+  white-space: nowrap;
+}
+
+.consult-score-desc {
+  font-size: 11px;
+  color: rgba(180, 210, 255, 0.45);
+  line-height: 1.5;
+  margin-bottom: 4px;
+}
+
+.consult-score-point {
+  color: #e8843a;
+  font-size: 14px;
+  font-weight: 700;
+  min-width: 42px;
+  text-align: right;
+}
+
+.consult-slider-wrap {
+  position: relative;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  max-width: 220px;
+}
+
+.consult-slider-track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 5px;
+  background: rgba(100, 140, 200, 0.15);
+  border-radius: 3px;
+}
+
+.consult-slider-fill {
+  position: absolute;
+  left: 0;
+  height: 5px;
+  background: linear-gradient(90deg, #b85820, #e8843a);
+  border-radius: 3px;
+  pointer-events: none;
+}
+
+.consult-slider-thumb {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background: #e8843a;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(232, 132, 58, 0.25);
+  pointer-events: none;
+}
+
+.consult-range-input {
+  position: absolute;
+  left: 0;
+  width: 220px;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  margin: 0;
+}
+
+.consult-feedback__head {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #c8d8ee;
+  padding-bottom: 0.42rem;
+  border-bottom: 1px solid rgba(100, 140, 200, 0.2);
+  margin-bottom: 0.4rem;
+}
+
+.consult-feedback textarea {
+  width: 100%;
+  border-radius: 0;
+  border: 0;
+  background: transparent;
+  color: #d9e4ff;
+  min-height: 120px;
+  padding: 0.2rem 0;
+  resize: vertical;
+  font-family: inherit;
+  font-size: 0.84rem;
+  outline: none;
+}
+
+.consult-feedback textarea:read-only {
+  color: #8fa6cd;
+}
+
+.consult-feedback__meta {
+  margin-top: 0.3rem;
+  text-align: right;
+  font-size: 0.72rem;
+  color: #7d93bc;
+}
+
+.consult-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.consult-footer .btn {
+  height: 38px;
+  border: 0;
+  border-radius: 9px;
+  font-weight: 800;
+  cursor: pointer;
+  padding: 0 0.95rem;
+}
+
+.consult-footer .btn-save {
+  background: linear-gradient(90deg, #b85820, #e8843a);
+  color: #fff;
+}
+
+.consult-footer .btn-edit {
+  background: rgba(59, 130, 246, 0.18);
+  color: #78aeff;
+}
+
+.consult-footer .btn-cancel {
+  background: rgba(130, 145, 170, 0.18);
+  color: #aeb8c7;
+}
+
+.consult-empty {
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #8398c2;
+  border: 1px dashed #2a395d;
+  border-radius: 12px;
+}
+
+.consult-empty--inline {
+  min-height: 120px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+@media (max-width: 1320px) {
+  .consult-layout {
+    grid-template-columns: 258px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .consult-center {
+    flex-direction: column;
+  }
+
+  .consult-radar-card,
+  .consult-scores {
+    width: 100%;
+    flex: 1 1 auto;
+    margin-left: 0;
+  }
+
+  .consult-radar-card svg {
+    width: 100%;
+    max-width: 360px;
+  }
+
+  .consult-eval-title {
+    margin-top: 4px;
+  }
+
+  .consult-scores {
+    padding-right: 0;
+  }
+
+  .consult-slider-wrap,
+  .consult-range-input {
+    max-width: 100%;
+    width: 100%;
+  }
+}

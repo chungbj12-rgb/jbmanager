@@ -2,7 +2,7 @@
  * 노션 스타일 리치 텍스트 (TipTap v2, ESM CDN)
  * — 블록(제목/목록/할 일/인용/코드), 링크·이미지(URL), 굵게/기울임/밑줄
  */
-import { Editor } from "https://esm.sh/@tiptap/core@2.10.4";
+import { Editor, Extension } from "https://esm.sh/@tiptap/core@2.10.4";
 import StarterKit from "https://esm.sh/@tiptap/starter-kit@2.10.4";
 import Placeholder from "https://esm.sh/@tiptap/extension-placeholder@2.10.4";
 import Link from "https://esm.sh/@tiptap/extension-link@2.10.4";
@@ -10,10 +10,51 @@ import Image from "https://esm.sh/@tiptap/extension-image@2.10.4";
 import TaskList from "https://esm.sh/@tiptap/extension-task-list@2.10.4";
 import TaskItem from "https://esm.sh/@tiptap/extension-task-item@2.10.4";
 import Underline from "https://esm.sh/@tiptap/extension-underline@2.10.4";
+import TextStyle from "https://esm.sh/@tiptap/extension-text-style@2.10.4";
+import Color from "https://esm.sh/@tiptap/extension-color@2.10.4";
 import Table from "https://esm.sh/@tiptap/extension-table@2.10.4";
 import TableRow from "https://esm.sh/@tiptap/extension-table-row@2.10.4";
 import TableCell from "https://esm.sh/@tiptap/extension-table-cell@2.10.4";
 import TableHeader from "https://esm.sh/@tiptap/extension-table-header@2.10.4";
+
+const FontSize = Extension.create({
+  name: "fontSize",
+  addGlobalAttributes() {
+    return [
+      {
+        types: ["textStyle"],
+        attributes: {
+          fontSize: {
+            default: null,
+            parseHTML: function (el) {
+              return el.style.fontSize || null;
+            },
+            renderHTML: function (attrs) {
+              if (!attrs.fontSize) return {};
+              return { style: "font-size: " + attrs.fontSize };
+            },
+          },
+        },
+      },
+    ];
+  },
+  addCommands() {
+    return {
+      setFontSize:
+        function (size) {
+          return function (_ctx) {
+            return this.chain().setMark("textStyle", { fontSize: size }).run();
+          };
+        },
+      unsetFontSize:
+        function () {
+          return function (_ctx) {
+            return this.chain().setMark("textStyle", { fontSize: null }).run();
+          };
+        },
+    };
+  },
+});
 
 export function emptyDoc() {
   return { type: "doc", content: [{ type: "paragraph" }] };
@@ -37,6 +78,9 @@ const defaultExtensions = (placeholder, editable) => [
     emptyEditorClass: "is-editor-empty",
   }),
   Underline,
+  TextStyle,
+  Color,
+  FontSize,
   Link.configure({ openOnClick: editable === true, autolink: true }),
   Image.configure({ inline: false, allowBase64: false }),
   TaskList,
@@ -196,15 +240,45 @@ export function bindNotionToolbar(barEl, api) {
     }, function () {
       return ed.isActive("codeBlock");
     });
-    add("토글", "토글형 블록(인용 대체)", function () {
-      chain().toggleBlockquote().run();
-    }, function () {
-      return ed.isActive("blockquote");
+    add("토글", "토글 블록", function () {
+      chain().insertContent('<details><summary>토글 제목</summary><p>토글 내용</p></details>').run();
     });
 
     var sep3 = document.createElement("span");
     sep3.className = "notion-toolbar__sep";
     barEl.appendChild(sep3);
+
+    var sizeSel = document.createElement("select");
+    sizeSel.className = "notion-toolbar__select";
+    [
+      { v: "", t: "크기" },
+      { v: "12px", t: "12" },
+      { v: "14px", t: "14" },
+      { v: "16px", t: "16" },
+      { v: "18px", t: "18" },
+      { v: "22px", t: "22" },
+      { v: "28px", t: "28" },
+    ].forEach(function (x) {
+      var o = document.createElement("option");
+      o.value = x.v;
+      o.textContent = x.t;
+      sizeSel.appendChild(o);
+    });
+    sizeSel.addEventListener("change", function () {
+      if (!sizeSel.value) chain().unsetFontSize().run();
+      else chain().setFontSize(sizeSel.value).run();
+    });
+    barEl.appendChild(sizeSel);
+
+    var colorInput = document.createElement("input");
+    colorInput.type = "color";
+    colorInput.className = "notion-toolbar__color";
+    colorInput.value = "#ffffff";
+    colorInput.title = "글자 색상";
+    colorInput.addEventListener("input", function () {
+      chain().setColor(colorInput.value).run();
+    });
+    barEl.appendChild(colorInput);
 
     add("링크", "링크", function () {
       var prev = ed.getAttributes("link").href;

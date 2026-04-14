@@ -1,0 +1,455 @@
+.staff-page {
+  color: #d4def2;
+}
+
+.staff-page__title {
+  margin: 0 0 0.85rem;
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+}
+
+.staff-top-tabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  margin-bottom: 0.6rem;
+}
+
+.staff-top-tab {
+  border: 1px solid #1f2c4b;
+  background: #121d38;
+  color: #7f90b9;
+  border-radius: 8px;
+  padding: 0.42rem 0.74rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.staff-top-tab.is-on {
+  background: linear-gradient(140deg, #ea6a2d, #ff924e);
+  border-color: rgba(255, 138, 79, 0.7);
+  color: #fff;
+}
+
+.staff-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.staff-toolbar--attendance {
+  margin-top: 0.15rem;
+}
+
+.attendance-month-wrap {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid #1f2f50;
+  background: #121c38;
+  border-radius: 11px;
+  padding: 0.46rem 0.62rem;
+  min-width: 142px;
+}
+
+.attendance-month-wrap input[type="month"] {
+  border: 0;
+  background: transparent;
+  color: #c9d6f2;
+  font-size: 0.95rem;
+  font-weight: 700;
+  outline: none;
+}
+
+.staff-status-tabs {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.staff-status-tab {
+  border: 1px solid #243559;
+  background: #111a34;
+  color: #8ca0cc;
+  border-radius: 10px;
+  padding: 0.42rem 0.72rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.staff-status-tab.is-on {
+  background: linear-gradient(140deg, #ea6a2d, #ff924e);
+  border-color: rgba(255, 138, 79, 0.8);
+  color: #fff;
+}
+
+.staff-search-wrap {
+  width: min(320px, 36vw);
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid #1f2f50;
+  background: #121c38;
+  border-radius: 11px;
+  padding: 0.5rem 0.7rem;
+  color: #6f84b4;
+}
+
+.staff-search-wrap svg {
+  width: 15px;
+  height: 15px;
+  flex: 0 0 auto;
+}
+
+.staff-search-wrap input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  outline: none;
+  color: #c9d6f2;
+  font-size: 0.8rem;
+}
+
+.staff-search-wrap input::placeholder {
+  color: #6f84b4;
+}
+
+.staff-table-card {
+  border: 1px solid #1f2d4d;
+  border-radius: 14px;
+  background: #080f23;
+  overflow: hidden;
+}
+
+.staff-table-wrap {
+  overflow: auto;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.staff-table thead th {
+  text-align: left;
+  color: #6f86b4;
+  font-size: 0.73rem;
+  font-weight: 700;
+  padding: 0.74rem 0.7rem;
+  border-bottom: 1px solid #1f2d4d;
+  white-space: nowrap;
+}
+
+.staff-table td {
+  padding: 0.76rem 0.7rem;
+  border-bottom: 1px solid #182641;
+  color: #d5def2;
+  white-space: nowrap;
+}
+
+.staff-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.attendance-empty {
+  text-align: center;
+  color: #7188b3;
+  padding: 2.2rem 0.7rem !important;
+}
+
+.cell-check {
+  width: 38px;
+  text-align: center;
+}
+
+.cell-check input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #4df0a5;
+  cursor: pointer;
+}
+
+.role-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 24px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0 0.55rem;
+  border: 1px solid transparent;
+}
+
+.role-badge--ceo {
+  color: #ffb46f;
+  border-color: #ff9e46;
+  background: rgba(255, 158, 70, 0.08);
+}
+
+.role-badge--lead {
+  color: #ffd36b;
+  border-color: #f9bf35;
+  background: rgba(249, 191, 53, 0.1);
+}
+
+.role-badge--coach {
+  color: #8db9ff;
+  border-color: #6da3ff;
+  background: rgba(109, 163, 255, 0.11);
+}
+
+.role-badge--vehicle {
+  color: #9ae6b4;
+  border-color: #48bb78;
+  background: rgba(72, 187, 120, 0.12);
+}
+
+.btn-edit-row {
+  border: 1px solid #2a3f67;
+  background: #0f1a34;
+  color: #d6e2ff;
+  height: 32px;
+  border-radius: 8px;
+  padding: 0 0.85rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-edit-row:hover {
+  border-color: #3f5f97;
+}
+
+.staff-manage-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.btn-restore-row {
+  border-color: rgba(76, 165, 255, 0.45);
+  color: #8ec2ff;
+}
+
+.btn-delete-row {
+  border-color: rgba(245, 114, 114, 0.5);
+  color: #ff9e9e;
+  background: rgba(73, 23, 33, 0.55);
+}
+
+.staff-type-select {
+  min-width: 84px;
+  height: 30px;
+  border: 1px solid #2a3f67;
+  border-radius: 7px;
+  background: #0f1a34;
+  color: #d6e2ff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0 0.45rem;
+  outline: none;
+}
+
+.staff-type-select--readonly {
+  opacity: 0.92;
+  cursor: default;
+  border-color: #33486f;
+  color: #c6d5f1;
+}
+
+.staff-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 66px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #33486f;
+  background: #13213f;
+  color: #c6d5f1;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.staff-type-badge--part {
+  border-color: rgba(255, 186, 96, 0.55);
+  color: #ffcb85;
+  background: rgba(96, 55, 22, 0.45);
+}
+
+.staff-type-badge--full {
+  border-color: rgba(109, 163, 255, 0.5);
+  color: #9cc4ff;
+  background: rgba(22, 45, 78, 0.6);
+}
+
+.att-btns {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.att-btn {
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid #2a3f67;
+  background: #0f1a34;
+  color: #d6e2ff;
+  padding: 0 0.55rem;
+  font-size: 0.73rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.att-btn--in {
+  border-color: rgba(76, 189, 123, 0.6);
+  color: #a9f3c4;
+}
+
+.att-btn--out {
+  border-color: rgba(255, 165, 87, 0.65);
+  color: #ffc386;
+}
+
+.att-btn--class {
+  border-color: rgba(121, 147, 255, 0.6);
+  color: #b8c7ff;
+}
+
+.att-btn--veh-start {
+  border-color: rgba(72, 187, 120, 0.65);
+  color: #9ae6b4;
+}
+
+.att-btn--veh-end {
+  border-color: rgba(129, 230, 217, 0.55);
+  color: #81e6d9;
+}
+
+.att-btn:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.att-name-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: #b8c9f0;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.att-name-link:hover {
+  color: #e8f0fc;
+}
+
+.att-detail-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(4, 10, 24, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+}
+
+.att-detail-overlay[hidden] {
+  display: none !important;
+}
+
+.att-detail-dialog {
+  width: min(720px, 100%);
+  max-height: min(86vh, 640px);
+  display: flex;
+  flex-direction: column;
+  background: #0c1528;
+  border: 1px solid #243559;
+  border-radius: 14px;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+  overflow: hidden;
+}
+
+.att-detail-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.1rem;
+  border-bottom: 1px solid #1f2d4d;
+}
+
+.att-detail-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #e8f0fc;
+}
+
+.att-detail-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #2a3f67;
+  border-radius: 8px;
+  background: #121d38;
+  color: #9fb4dc;
+  font-size: 1.35rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.att-detail-close:hover {
+  color: #fff;
+  border-color: #3f5f97;
+}
+
+.att-detail-meta {
+  margin: 0;
+  padding: 0.65rem 1.1rem 0.5rem;
+  font-size: 0.8rem;
+  color: #7f92ba;
+}
+
+.att-detail-table-wrap {
+  padding: 0 1.1rem 1.1rem;
+  overflow: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.att-detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8rem;
+}
+
+.att-detail-table th {
+  text-align: left;
+  color: #6f86b4;
+  font-weight: 700;
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid #1f2d4d;
+  white-space: nowrap;
+}
+
+.att-detail-table td {
+  padding: 0.55rem 0.45rem;
+  border-bottom: 1px solid #182641;
+  color: #d5def2;
+}
+
+.att-detail-empty {
+  text-align: center;
+  color: #7188b3;
+  padding: 1.5rem 0.5rem !important;
+}

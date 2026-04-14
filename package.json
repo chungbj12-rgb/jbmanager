@@ -3,6 +3,8 @@
   "private": true,
   "scripts": {
     "studio": "npx --yes live-server . --port=8765 --open=studio.html",
-    "shuttle-react": "npm --prefix shuttle-react run dev"
+    "shuttle-react": "npm --prefix shuttle-react run dev",
+    "vercel-build": "node scripts/vercel-build.js",
+    "build": "node scripts/vercel-build.js"
   }
 }

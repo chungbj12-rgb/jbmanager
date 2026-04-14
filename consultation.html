@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/consultation-page.css" />
 </head>
 <body class="app-body">
   <div class="app-layout" id="appLayout">
@@ -15,45 +16,81 @@
     <div class="app-column">
       <header class="app-topbar" id="app-topbar"></header>
       <main class="app-content">
-        <div class="app-page-head">
-          <h2>상담관리</h2>
-          <p>상담 일지·후속 조치를 남깁니다</p>
-        </div>
-        <div class="data-card">
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>일자</th>
-                  <th>대상</th>
-                  <th>내용</th>
-                  <th></th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
+        <section class="consult-page">
+          <div class="consult-page__head">
+            <h2 class="consult-page__title">상담관리</h2>
+            <div class="consult-page__actions">
+              <button type="button" class="consult-send-btn" id="btnSendSelected">선택 학생 일괄 전송 (0)</button>
+            </div>
           </div>
-          <form class="inline-form" id="f">
-            <div>
-              <label class="auth-label" for="d">일자</label>
-              <input class="auth-input" id="d" type="date" />
-            </div>
-            <div>
-              <label class="auth-label" for="who">대상(이름)</label>
-              <input class="auth-input" id="who" required />
-            </div>
-            <div class="full">
-              <label class="auth-label" for="body">상담 내용</label>
-              <input class="auth-input" id="body" />
-            </div>
-            <div><button type="submit" class="btn btn--primary">추가</button></div>
-          </form>
-        </div>
+
+          <div class="consult-layout">
+            <aside class="consult-sidebar">
+              <div class="consult-sidebar__top">
+                <label class="consult-class-filter" for="classFilter">
+                  <select id="classFilter"></select>
+                  <span class="count" id="memberCount">0명</span>
+                </label>
+              </div>
+              <div class="consult-member-table-wrap">
+                <table class="consult-member-table">
+                  <thead>
+                    <tr>
+                      <th class="cb"><input type="checkbox" id="cbAll" aria-label="전체 선택" /></th>
+                      <th>이름</th>
+                      <th>학년</th>
+                      <th>성별</th>
+                    </tr>
+                  </thead>
+                  <tbody id="memberTbody"></tbody>
+                </table>
+              </div>
+            </aside>
+
+            <section class="consult-main">
+              <form id="consultForm" class="consult-panel">
+                <div class="consult-student-head">
+                  <div>
+                    <h3 class="consult-student-name" id="studentName">-</h3>
+                    <p class="consult-student-meta" id="studentMeta">-</p>
+                  </div>
+                  <p class="consult-student-contact" id="studentContact">학생: -<br />학부모: -</p>
+                </div>
+
+                <div class="consult-center">
+                  <div class="consult-radar-card">
+                    <svg id="radarSvg" viewBox="0 0 300 300" aria-label="평가 레이더 차트"></svg>
+                  </div>
+                  <div class="consult-scores">
+                    <div class="consult-eval-title">평가항목</div>
+                    <div id="scoreRows"></div>
+                  </div>
+                </div>
+
+                <div id="detailEmpty" class="consult-empty consult-empty--inline" hidden>좌측에서 학생을 선택하면 상담지를 작성할 수 있습니다.</div>
+
+                <div class="consult-feedback" id="feedbackWrap">
+                  <div class="consult-feedback__head">피드백 작성</div>
+                  <label for="feedback" class="sr-only">피드백</label>
+                  <textarea id="feedback" maxlength="500" placeholder="학생에 대한 피드백을 입력하세요..."></textarea>
+                  <div class="consult-feedback__meta"><span id="feedbackLen">0</span>/500</div>
+                </div>
+
+                <div class="consult-footer" id="footerWrap">
+                  <button type="button" class="btn btn-cancel" id="btnReset">피드백 취소</button>
+                  <button type="button" class="btn btn-edit" id="btnEdit">수정</button>
+                  <button type="submit" class="btn btn-save">저장</button>
+                </div>
+              </form>
+            </section>
+          </div>
+        </section>
       </main>
     </div>
   </div>
     <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="js/jb-auth-patch.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
   <script src="js/jb-supabase-client.js"></script>
   <script src="js/jb-remote-sync.js"></script>
@@ -64,62 +101,487 @@
   <script>
     (function () {
       function run() {
-JBAppShell.init({ activeNav: "consultation", pageTitle: "제이비스포츠 관리프로그램" });
-      if (!JBAuth.getCurrentUser()) return;
-      document.getElementById("d").value = JBData.dateKey(new Date());
-      var tb = document.getElementById("tbody");
+        JBAppShell.init({ activeNav: "consultation", pageTitle: "제이비스포츠 관리프로그램" });
+        if (!JBAuth.getCurrentUser()) return;
 
-      function render() {
-        tb.innerHTML = JBData.getConsults()
-          .slice()
-          .reverse()
-          .map(function (r) {
+        var SCORE_ITEMS = [
+          { key: "physical", name: "신체 수행 능력", desc: "기본적인 신체 발달 정도와 운동 기술 습득 능력을 평가합니다." },
+          { key: "self", name: "자기 주도적 태도", desc: "수업에 참여하는 열정과 스스로 목표를 세워 실천하는 의지를 봅니다." },
+          { key: "task", name: "과업 집중력", desc: "코치의 설명에 귀 기울이고 한 가지 동작이나 경기에 몰입하는 힘입니다." },
+          { key: "social", name: "사회적 협동심", desc: "동료들과 소통하며 팀워크를 이루고 규칙을 준수하는 태도를 측정합니다." },
+          { key: "mental", name: "심리적 회복탄력성", desc: "실수하거나 경기에서 졌을 때 좌절하지 않고 다시 도전하는 마음의 근육입니다." },
+        ];
+        var DEFAULT_SCORES = { physical: 6, self: 6, task: 6, social: 6, mental: 6 };
+        var currentScores = Object.assign({}, DEFAULT_SCORES);
+        var originalScores = Object.assign({}, DEFAULT_SCORES);
+        var originalFeedback = "";
+        var selectedIds = {};
+        var activeMemberId = "";
+        var currentFilter = "";
+
+        var classFilter = document.getElementById("classFilter");
+        var memberCount = document.getElementById("memberCount");
+        var memberTbody = document.getElementById("memberTbody");
+        var cbAll = document.getElementById("cbAll");
+        var btnSendSelected = document.getElementById("btnSendSelected");
+        var detailEmpty = document.getElementById("detailEmpty");
+        var consultForm = document.getElementById("consultForm");
+        var studentName = document.getElementById("studentName");
+        var studentMeta = document.getElementById("studentMeta");
+        var studentContact = document.getElementById("studentContact");
+        var scoreRows = document.getElementById("scoreRows");
+        var feedback = document.getElementById("feedback");
+        var feedbackWrap = document.getElementById("feedbackWrap");
+        var feedbackLen = document.getElementById("feedbackLen");
+        var radarSvg = document.getElementById("radarSvg");
+        var footerWrap = document.getElementById("footerWrap");
+        var btnReset = document.getElementById("btnReset");
+        var btnEdit = document.getElementById("btnEdit");
+
+        function esc(v) {
+          return String(v == null ? "" : v)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;");
+        }
+
+        function getMembers() {
+          return JBData.getMembers().slice().sort(function (a, b) {
+            return String(a.name || "").localeCompare(String(b.name || ""), "ko");
+          });
+        }
+
+        function getConsultMap() {
+          var map = {};
+          JBData.getConsults()
+            .filter(function (x) {
+              return x && x.consultType === "member-consult";
+            })
+            .forEach(function (x) {
+              map[x.memberId] = x;
+            });
+          return map;
+        }
+
+        function saveConsultRecord(record) {
+          var list = JBData.getConsults().slice();
+          var idx = -1;
+          for (var i = 0; i < list.length; i++) {
+            if (list[i] && list[i].consultType === "member-consult" && list[i].memberId === record.memberId) {
+              idx = i;
+              break;
+            }
+          }
+          if (idx >= 0) list[idx] = record;
+          else list.push(record);
+          JBData.saveConsults(list);
+        }
+
+        function pct(v) {
+          return ((v - 1) / 9) * 100;
+        }
+
+        function buildScoreRows() {
+          scoreRows.innerHTML = SCORE_ITEMS.map(function (item) {
             return (
-              "<tr><td>" +
-              (r.consultDate || "") +
-              "</td><td>" +
-              (r.clientName || "") +
-              "</td><td>" +
-              (r.body || "") +
-              '</td><td class="cell-actions"><button type="button" class="linkish" data-id="' +
-              r.id +
-              '">삭제</button></td></tr>'
+              '<div class="consult-score-row">' +
+              '<div class="consult-score-head"><span class="consult-score-title">' +
+              item.name +
+              '</span><span class="consult-score-point" id="val-' +
+              item.key +
+              '">6점</span></div>' +
+              '<div class="consult-score-desc">' +
+              item.desc +
+              "</div>" +
+              '<div class="consult-slider-wrap">' +
+              '<div class="consult-slider-track"></div>' +
+              '<div class="consult-slider-fill" id="fill-' +
+              item.key +
+              '" style="width:55.5556%"></div>' +
+              '<div class="consult-slider-thumb" id="thumb-' +
+              item.key +
+              '" style="left:calc(55.5556% - 8px)"></div>' +
+              '<input type="range" class="consult-range-input" min="1" max="10" step="1" value="6" data-key="' +
+              item.key +
+              '" />' +
+              "</div>" +
+              "</div>"
             );
-          })
-          .join("");
+          }).join("");
+        }
+
+        function drawRadar() {
+          var cx = 150;
+          var cy = 155;
+          var maxR = 90;
+          var n = 5;
+          var labelDefs = [
+            { text: "신체 수행 능력", anchor: "middle", dx: 0, dy: -10 },
+            { text: "자기 주도성", anchor: "start", dx: 8, dy: -2 },
+            { text: "과업 집중력", anchor: "start", dx: 8, dy: 8 },
+            { text: "사회적 협동심", anchor: "end", dx: -8, dy: 8 },
+            { text: "회복탄력성", anchor: "end", dx: -8, dy: -2 },
+          ];
+          function pt(i, r) {
+            var a = (i * 2 * Math.PI) / n - Math.PI / 2;
+            return { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) };
+          }
+          var h = "";
+          [1, 0.75, 0.5, 0.25].forEach(function (ratio) {
+            var pts = Array.from({ length: n }, function (_, i) {
+              return pt(i, maxR * ratio);
+            });
+            h += '<polygon points="' + pts.map(function (p) { return p.x + "," + p.y; }).join(" ") + '" fill="none" stroke="rgba(100,140,200,0.18)" stroke-width="1"></polygon>';
+          });
+          for (var i = 0; i < n; i++) {
+            var e = pt(i, maxR);
+            h += '<line x1="' + cx + '" y1="' + cy + '" x2="' + e.x + '" y2="' + e.y + '" stroke="rgba(100,140,200,0.15)" stroke-width="1"></line>';
+          }
+          var keys = ["physical", "self", "task", "social", "mental"];
+          var dpts = keys.map(function (k, i2) {
+            return pt(i2, maxR * ((currentScores[k] || 6) / 10));
+          });
+          h += '<polygon points="' + dpts.map(function (p) { return p.x + "," + p.y; }).join(" ") + '" fill="rgba(180,90,30,0.52)" stroke="#d97b3a" stroke-width="1.5"></polygon>';
+          dpts.forEach(function (p2) {
+            h += '<circle cx="' + p2.x + '" cy="' + p2.y + '" r="3" fill="#e8843a"></circle>';
+          });
+          keys.forEach(function (_, j) {
+            var base = pt(j, maxR + 12);
+            var d = labelDefs[j];
+            h += '<text x="' + (base.x + d.dx) + '" y="' + (base.y + d.dy) + '" text-anchor="' + d.anchor + '" dominant-baseline="central" font-size="11.5" fill="rgba(180,210,255,0.75)">' + d.text + "</text>";
+          });
+          radarSvg.innerHTML = h;
+        }
+
+        function syncScoreUI() {
+          SCORE_ITEMS.forEach(function (item) {
+            var v = Number(currentScores[item.key] || 6);
+            var input = scoreRows.querySelector('input[data-key="' + item.key + '"]');
+            var valEl = document.getElementById("val-" + item.key);
+            var fill = document.getElementById("fill-" + item.key);
+            var thumb = document.getElementById("thumb-" + item.key);
+            if (input) input.value = String(v);
+            if (valEl) valEl.textContent = v + "점";
+            if (fill) fill.style.width = pct(v) + "%";
+            if (thumb) thumb.style.left = "calc(" + pct(v) + "% - 8px)";
+          });
+          drawRadar();
+        }
+
+        function getFilteredMembers(list) {
+          if (!currentFilter) return list;
+          return list.filter(function (m) {
+            return (m.className || "미분류").trim() === currentFilter;
+          });
+        }
+
+        function updateSendButton() {
+          var n = Object.keys(selectedIds).length;
+          btnSendSelected.textContent = "선택 학생 일괄 전송 (" + n + ")";
+        }
+
+        function setDetail(member, consultRecord) {
+          if (!member) {
+            activeMemberId = "";
+            detailEmpty.hidden = false;
+            feedbackWrap.hidden = true;
+            footerWrap.hidden = true;
+            studentName.textContent = "-";
+            studentMeta.textContent = "-";
+            studentContact.innerHTML = "학생: -<br />학부모: -";
+            currentScores = Object.assign({}, DEFAULT_SCORES);
+            originalScores = Object.assign({}, DEFAULT_SCORES);
+            syncScoreUI();
+            return;
+          }
+          activeMemberId = member.id;
+          detailEmpty.hidden = true;
+          feedbackWrap.hidden = false;
+          footerWrap.hidden = false;
+          studentName.textContent = member.name || "-";
+          studentMeta.textContent = (member.className || "미분류") + " / " + (member.grade || "-");
+          studentContact.innerHTML =
+            "학생: " +
+            esc(member.phone || "-") +
+            "<br />학부모: " +
+            esc(member.parentPhoneMother || member.parentPhoneFather || "-");
+
+          var raw = Object.assign({}, DEFAULT_SCORES, (consultRecord && consultRecord.scores) || {});
+          currentScores = {
+            physical: Number(raw.physical || 6),
+            self: Number(raw.self || raw.selfDirected || 6),
+            task: Number(raw.task || raw.taskFocus || raw.focus || 6),
+            social: Number(raw.social || 6),
+            mental: Number(raw.mental || raw.resilience || 6),
+          };
+          originalScores = Object.assign({}, currentScores);
+          syncScoreUI();
+          feedback.value = (consultRecord && consultRecord.feedback) || "";
+          originalFeedback = feedback.value;
+          feedbackLen.textContent = String(feedback.value.length);
+          setEditable(!(consultRecord && consultRecord.updatedAt));
+        }
+
+        function setEditable(editable) {
+          // 피드백 입력창은 항상 활성화
+          feedback.readOnly = false;
+          // 점수 슬라이더는 항상 조절 가능하게 유지 (실시간 그래프 반영)
+          scoreRows.querySelectorAll('input[type="range"]').forEach(function (input) {
+            input.disabled = false;
+          });
+          if (btnEdit) btnEdit.disabled = false;
+        }
+
+        function renderMembers() {
+          var allMembers = getMembers();
+          var list = getFilteredMembers(allMembers);
+          var consultMap = getConsultMap();
+          memberCount.textContent = list.length + "명";
+
+          if (!list.length) {
+            memberTbody.innerHTML = '<tr><td colspan="4">표시할 학생이 없습니다.</td></tr>';
+            setDetail(null, null);
+            updateSendButton();
+            return;
+          }
+
+          memberTbody.innerHTML = list
+            .map(function (m) {
+              var checked = selectedIds[m.id] ? " checked" : "";
+              var active = m.id === activeMemberId ? " is-active" : "";
+              return (
+                '<tr data-id="' +
+                esc(m.id) +
+                '" class="' +
+                active +
+                '">' +
+                '<td class="cb"><input type="checkbox" data-cb="' +
+                esc(m.id) +
+                '"' +
+                checked +
+                " /></td>" +
+                "<td>" +
+                esc(m.name || "-") +
+                "</td>" +
+                "<td>" +
+                esc(m.grade || "-") +
+                "</td>" +
+                "<td>" +
+                esc(m.gender || "-") +
+                "</td></tr>"
+              );
+            })
+            .join("");
+
+          var exists = list.some(function (m) {
+            return m.id === activeMemberId;
+          });
+          if (!exists) {
+            var first = list[0];
+            setDetail(first, consultMap[first.id] || null);
+          } else {
+            var active = list.find(function (m) {
+              return m.id === activeMemberId;
+            });
+            setDetail(active, consultMap[active.id] || null);
+          }
+
+          var selectedVisible = list.filter(function (m) {
+            return selectedIds[m.id];
+          }).length;
+          cbAll.checked = !!list.length && selectedVisible === list.length;
+          updateSendButton();
+        }
+
+        function renderClassFilter() {
+          var members = getMembers();
+          var classesFromManage = (JBData.getClasses ? JBData.getClasses() : [])
+            .map(function (c) {
+              return (c && c.name ? String(c.name) : "").trim();
+            })
+            .filter(Boolean);
+          var classes = {};
+          classesFromManage.forEach(function (className) {
+            classes[className] = true;
+          });
+          members.forEach(function (m) {
+            var name = (m.className || "미분류").trim();
+            classes[name] = true;
+          });
+          var classNames = Object.keys(classes).sort(function (a, b) {
+            return a.localeCompare(b, "ko");
+          });
+          classFilter.innerHTML = classNames
+            .map(function (name) {
+              return '<option value="' + esc(name) + '">' + esc(name) + "</option>";
+            })
+            .join("");
+          if (!classNames.length) {
+            classFilter.innerHTML = '<option value="">클래스 없음</option>';
+            classFilter.value = "";
+            currentFilter = "";
+            return;
+          }
+          if (classNames.indexOf(currentFilter) < 0) currentFilter = classNames[0];
+          classFilter.value = currentFilter;
+        }
+
+        buildScoreRows();
+        syncScoreUI();
+        renderClassFilter();
+        renderMembers();
+
+        classFilter.addEventListener("change", function () {
+          currentFilter = classFilter.value || "";
+          renderMembers();
+        });
+
+        cbAll.addEventListener("change", function () {
+          var ids = [];
+          memberTbody.querySelectorAll("tr[data-id]").forEach(function (tr) {
+            ids.push(tr.getAttribute("data-id"));
+          });
+          ids.forEach(function (id) {
+            if (cbAll.checked) selectedIds[id] = true;
+            else delete selectedIds[id];
+          });
+          renderMembers();
+        });
+
+        memberTbody.addEventListener("click", function (e) {
+          var tr = e.target.closest("tr[data-id]");
+          if (!tr) return;
+          var id = tr.getAttribute("data-id");
+          if (e.target && e.target.matches("input[data-cb]")) {
+            if (e.target.checked) selectedIds[id] = true;
+            else delete selectedIds[id];
+            updateSendButton();
+            return;
+          }
+          var member = getMembers().find(function (m) {
+            return String(m.id) === String(id);
+          });
+          if (!member) return;
+          var consultMap = getConsultMap();
+          setDetail(member, consultMap[member.id] || null);
+          renderMembers();
+        });
+
+        scoreRows.addEventListener("input", function (e) {
+          if (!e.target || !e.target.matches("input[data-key]")) return;
+          var key = e.target.getAttribute("data-key");
+          currentScores[key] = Number(e.target.value || 6);
+          syncScoreUI();
+        });
+
+        feedback.addEventListener("input", function () {
+          feedbackLen.textContent = String(feedback.value.length);
+        });
+
+        consultForm.addEventListener("submit", function (e) {
+          e.preventDefault();
+          if (!activeMemberId) return;
+          var member = getMembers().find(function (m) {
+            return m.id === activeMemberId;
+          });
+          if (!member) return;
+
+          var scores = Object.assign({}, currentScores);
+
+          var savedPayload = {
+            id: "member-consult-" + activeMemberId,
+            consultType: "member-consult",
+            memberId: activeMemberId,
+            memberName: member.name || "",
+            className: member.className || "",
+            consultDate: JBData.dateKey(new Date()),
+            scores: {
+              physical: scores.physical,
+              self: scores.self,
+              task: scores.task,
+              social: scores.social,
+              mental: scores.mental,
+              selfDirected: scores.self,
+              taskFocus: scores.task,
+              resilience: scores.mental,
+            },
+            feedback: (feedback.value || "").trim(),
+            updatedAt: Date.now(),
+          };
+          saveConsultRecord(savedPayload);
+          originalScores = Object.assign({}, currentScores);
+          originalFeedback = (feedback.value || "").trim();
+
+          if (window.JBUI && JBUI.toast) JBUI.toast("상담 내용을 저장했습니다.", "ok");
+          if (typeof window.onSave === "function") window.onSave(savedPayload);
+          setEditable(false);
+        });
+
+        btnReset.addEventListener("click", function () {
+          currentScores = Object.assign({}, originalScores);
+          syncScoreUI();
+          feedback.value = originalFeedback;
+          feedbackLen.textContent = String(feedback.value.length);
+        });
+
+        if (btnEdit) {
+          btnEdit.addEventListener("click", function () {
+            if (!activeMemberId) return;
+            setEditable(true);
+            feedback.focus();
+          });
+        }
+
+        btnSendSelected.addEventListener("click", function () {
+          var n = Object.keys(selectedIds).length;
+          if (n <= 0) {
+            if (window.JBUI && JBUI.toast) JBUI.toast("먼저 학생을 선택해 주세요.", "err");
+            return;
+          }
+          if (window.JBUI && JBUI.toast) JBUI.toast("선택한 " + n + "명의 상담 결과를 전송 대기 상태로 표시했습니다.", "ok");
+        });
+
+        // 외부 상태/props 연동 포인트 (다른 프레임워크에서 호출 가능)
+        window.JBConsultationCard = {
+          setStudentData: function (member, consultRecord) {
+            if (!member) return;
+            setDetail(member, consultRecord || null);
+          },
+          getState: function () {
+            return {
+              memberId: activeMemberId,
+              scores: Object.assign({}, currentScores),
+              feedback: feedback.value || "",
+              editable: !feedback.readOnly,
+            };
+          },
+        };
+
+        // 회원관리/클래스관리에서 데이터가 바뀐 뒤 돌아오면 즉시 동기화
+        function syncFromLatestData() {
+          var prevFilter = currentFilter;
+          renderClassFilter();
+          var hasPrevFilter = Array.prototype.some.call(classFilter.options, function (opt) {
+            return opt.value === prevFilter;
+          });
+          if (!hasPrevFilter) {
+            currentFilter = classFilter.value || "";
+          } else {
+            currentFilter = prevFilter;
+          }
+          classFilter.value = currentFilter;
+          renderMembers();
+        }
+
+        window.addEventListener("focus", syncFromLatestData);
+        document.addEventListener("visibilitychange", function () {
+          if (!document.hidden) syncFromLatestData();
+        });
+        window.addEventListener("storage", function () {
+          syncFromLatestData();
+        });
       }
-
-      tb.addEventListener("click", function (e) {
-        var id = e.target.dataset && e.target.dataset.id;
-        if (!id) return;
-        e.preventDefault();
-        JBUI.confirm("이 항목을 삭제할까요?", {
-          title: "삭제 확인",
-          confirmText: "삭제",
-          cancelText: "취소",
-        }).then(function (ok) {
-          if (!ok) return;
-          JBData.saveConsults(JBData.getConsults().filter(function (x) { return x.id !== id; }));
-          render();
-        });
-      });
-
-      document.getElementById("f").addEventListener("submit", function (e) {
-        e.preventDefault();
-        var list = JBData.getConsults();
-        list.push({
-          id: "cs-" + Date.now(),
-          consultDate: document.getElementById("d").value,
-          clientName: document.getElementById("who").value.trim(),
-          body: document.getElementById("body").value.trim(),
-        });
-        JBData.saveConsults(list);
-        e.target.reset();
-        document.getElementById("d").value = JBData.dateKey(new Date());
-        render();
-      });
-      render();
-    }
       if (JBAuth.waitForSession) {
         JBAuth.waitForSession().then(run);
       } else {

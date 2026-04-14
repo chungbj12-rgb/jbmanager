@@ -197,6 +197,7 @@
         position: row.position,
         email: row.email,
         birth: row.birth,
+        employmentStatus: "active",
         createdAt: row.created_at || "",
       };
     });
@@ -308,6 +309,7 @@
       phone: v.phone,
       email: data.email.trim(),
       position: data.position.trim(),
+      employmentStatus: "active",
       createdAt: new Date().toISOString(),
       passwordSalt: cred.passwordSalt,
       passwordHash: cred.passwordHash,
@@ -424,6 +426,7 @@
           position: u.position,
           email: u.email,
           birth: u.birth,
+          employmentStatus: u.employmentStatus || "active",
           createdAt: u.createdAt || "",
         };
       });
@@ -435,6 +438,7 @@
         position: u.position,
         email: u.email,
         birth: u.birth,
+        employmentStatus: u.employmentStatus || "active",
         createdAt: u.createdAt || "",
       };
     });

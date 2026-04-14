@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>jbmanager — work status</title>
+  <style>
+    :root { --bg:#0f1419; --card:#1a222c; --text:#e6edf3; --muted:#8b949e; --accent:#58a6ff; --border:#30363d; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:"Segoe UI",system-ui,sans-serif; background:var(--bg); color:var(--text); line-height:1.55; padding:1.5rem clamp(1rem,4vw,2.5rem) 3rem; }
+    h1 { font-size:1.35rem; font-weight:600; margin:0 0 0.35rem; }
+    .meta { color:var(--muted); font-size:0.88rem; margin-bottom:1.5rem; }
+    .meta code { background:var(--card); padding:0.12rem 0.4rem; border-radius:4px; font-size:0.82rem; }
+    section { background:var(--card); border:1px solid var(--border); border-radius:10px; padding:1rem 1.15rem; margin-bottom:1rem; }
+    section h2 { font-size:0.95rem; margin:0 0 0.65rem; color:var(--accent); font-weight:600; }
+    ul { margin:0; padding-left:1.2rem; }
+    li { margin-bottom:0.35rem; }
+    .note { font-size:0.85rem; color:var(--muted); margin-top:0.75rem; }
+    a { color:var(--accent); }
+  </style>
+</head>
+<body>
+  <h1>jbmanager — progress summary</h1>
+  <p class="meta">
+    Local path: <code>C:\Users\User\jbmanager</code><br />
+    Remote: <a href="https://github.com/chungbj12-rgb/jbmanager" target="_blank" rel="noopener">chungbj12-rgb/jbmanager</a>
+    (prior session: local git initialized, merged with remote, pushed to <code>main</code>)
+  </p>
+
+  <section>
+    <h2>Preview (local server)</h2>
+    <ul>
+      <li>No Python required: <code>preview_server.ps1</code>, <code>run_preview.cmd</code></li>
+      <li>Open: <code>http://127.0.0.1:8765/index.html</code> (login: <code>/login.html</code>)</li>
+      <li>Live reload may differ from the Python preview server</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Staff / payroll (attendance)</h2>
+    <ul>
+      <li>Regular class: main coach 40,000 KRW / assistant 25,000 KRW</li>
+      <li>Club class (class name starts with <code>U-</code>): main 60,000 / assistant 40,000</li>
+      <li>Shuttle teacher: 12,000 KRW/hour from vehicle start/end times</li>
+      <li>Attendance stores class type and role; payroll tab aggregates by month</li>
+      <li>Key files: <code>staff.html</code>, <code>css/staff-page.css</code>, <code>js/_staff_payroll_insert.js</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Schedule / rich text</h2>
+    <ul>
+      <li><code>js/notion-editor.mjs</code> — TipTap (tables, formatting)</li>
+      <li>Event dialog: toggle (details), font size, text color in toolbar</li>
+      <li>Fallback toast on editor load failure: <code>schedule.html</code></li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>GitHub / Supabase</h2>
+    <ul>
+      <li>Changes were pushed to <code>main</code> in the prior agent session (per transcript)</li>
+      <li>Supabase needs <code>auth-config.js</code>: URL, anon key, <code>storageMode: "supabase"</code> (still local until set)</li>
+    </ul>
+    <p class="note">In Cursor: open this file, then Command Palette &rarr; <strong>Live Preview: Show Preview</strong>. Workspace setting <code>workbench.editor.openPositioning: left</code> opens new editors to the left so the preview can sit on the left side.</p>
+  </section>
+</body>
+</html>

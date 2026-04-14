@@ -12,6 +12,9 @@ Desktop.ini
 *.log
 .env
 .env.local
+.env.production
+.env.production.local
+auth-config.local.js
 
 # Optional (if you add Node later)
 node_modules/

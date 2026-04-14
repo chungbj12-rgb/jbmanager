@@ -8,6 +8,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;500;700;900&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="css/staff-page.css" />
 </head>
 <body class="app-body">
   <div class="app-layout" id="appLayout">
@@ -15,23 +16,110 @@
     <div class="app-column">
       <header class="app-topbar" id="app-topbar"></header>
       <main class="app-content">
-        <div class="app-page-head">
-          <h2>직원관리</h2>
-          <p>로그인 계정으로 등록된 직원 목록입니다. 신규 계정은 회원가입으로 추가하세요.</p>
+        <section class="staff-page">
+          <h2 class="staff-page__title">직원관리</h2>
+
+          <div class="staff-top-tabs" role="tablist" aria-label="직원 하위 메뉴">
+            <button type="button" class="staff-top-tab is-on" data-subtab="staff">직원관리</button>
+            <button type="button" class="staff-top-tab" data-subtab="attendance">근태관리</button>
+            <button type="button" class="staff-top-tab" data-subtab="payroll">급여관리</button>
+          </div>
+
+          <div class="staff-toolbar" id="staffToolbar">
+            <div class="staff-status-tabs" role="tablist" aria-label="재직 상태" id="staffStatusTabs">
+              <button type="button" class="staff-status-tab is-on" id="tabActive">재직직원 (<span id="activeCount">0</span>)</button>
+              <button type="button" class="staff-status-tab" id="tabInactive">퇴사직원 (<span id="inactiveCount">0</span>)</button>
+            </div>
+
+            <div class="attendance-month-wrap" id="monthWrap" hidden>
+              <input type="month" id="tabMonth" />
+            </div>
+            <div class="staff-search-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.35-4.35"></path>
+              </svg>
+              <input type="search" id="staffSearch" placeholder="직원이름으로 검색..." autocomplete="off" />
+            </div>
+          </div>
+
+          <div class="staff-table-card">
+            <div class="staff-table-wrap">
+              <table class="staff-table">
+                <thead id="staffThead">
+                  <tr id="staffHeadRow">
+                    <th class="cell-check"><input type="checkbox" id="cbAll" aria-label="전체 선택" /></th>
+                    <th>이름</th>
+                    <th>직책</th>
+                    <th>연락처</th>
+                    <th>계좌번호</th>
+                    <th>주민번호</th>
+                    <th>관리</th>
+                  </tr>
+                </thead>
+                <tbody id="tbody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <div id="attDetailOverlay" class="att-detail-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="attDetailTitle">
+          <div class="att-detail-dialog">
+            <div class="att-detail-head">
+              <h3 id="attDetailTitle" class="att-detail-title">출근·근태 상세</h3>
+              <button type="button" class="att-detail-close" id="attDetailClose" aria-label="닫기">×</button>
+            </div>
+            <p class="att-detail-meta" id="attDetailMeta"></p>
+            <div class="att-detail-table-wrap">
+              <table class="att-detail-table">
+                <thead>
+                  <tr>
+                    <th>일자</th>
+                    <th>출근</th>
+                    <th>퇴근</th>
+                    <th>운행시작</th>
+                    <th>운행종료</th>
+                    <th>비고</th>
+                  </tr>
+                </thead>
+                <tbody id="attDetailTbody"></tbody>
+              </table>
+            </div>
+          </div>
         </div>
-        <div class="data-card">
-          <div class="data-table-wrap">
-            <table class="data-table">
-              <thead>
-                <tr>
-                  <th>이름</th>
-                  <th>직책</th>
-                  <th>전화번호</th>
-                  <th>이메일</th>
-                </tr>
-              </thead>
-              <tbody id="tbody"></tbody>
-            </table>
+
+        <div id="partClassOverlay" class="att-detail-overlay" hidden role="dialog" aria-modal="true" aria-labelledby="partClassTitle">
+          <div class="att-detail-dialog part-class-dialog">
+            <div class="att-detail-head">
+              <h3 id="partClassTitle" class="att-detail-title">파트 클래스 · ��여 반영</h3>
+              <button type="button" class="att-detail-close" id="partClassClose"�기">×</button>
+            </div>
+            <p class="att-detail-meta" id="partClassMeta"></p>
+            <div class="part-class-body">
+              <label class="part-class-label">
+                <span class="part-class-label-text">����스 구분</span>
+                <select id="partClassKind" class="part-class-select">
+                  <option value="regular">정��반</option>
+                  <option value����반 (U- 클래스)</option>
+                </select>
+              </label>
+              <label class="part-class-label">
+                <span class="part-class-label-text">역할</span>
+                <select id="partCoachRole" class="part-class-select">
+                  <option value="main">메인 코치</option>
+                  <option value="assistant">보조 코치</option>
+                </select>
+              </label>
+              <label class="part-class-label">
+                <span class="part-class-label-text">�����스명 (선택, U- 로��반으로 자동 적용)</span>
+                <input type="text" id="partClassName" class="part-class-input" placeholder="예: U-10 리그" autocomplete="off" />
+              </label>
+              <p class="part-class-rate-hint" id="partClassRateHint"></p>
+            </div>
+            <div class="part-class-actions">
+              <button type="button" class="part-class-btn part-class-btn--ghost" id="partClassClear">표시 제거</button>
+              <button type="button" class="part-class-btn part-class-btn--primary" id="partClassSave">저장</button>
+            </div>
           </div>
         </div>
       </main>
@@ -39,6 +127,7 @@
   </div>
     <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="js/jb-auth-patch.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
   <script src="js/jb-supabase-client.js"></script>
   <script src="js/jb-remote-sync.js"></script>
@@ -51,21 +140,597 @@
       function run() {
 JBAppShell.init({ activeNav: "staff", pageTitle: "제이비스포츠 관리프로그램" });
       if (!JBAuth.getCurrentUser()) return;
-      document.getElementById("tbody").innerHTML = JBAuth.listStaffSafe()
-        .map(function (s) {
+      var tbody = document.getElementById("tbody");
+      var searchInput = document.getElementById("staffSearch");
+      var tabActive = document.getElementById("tabActive");
+      var tabInactive = document.getElementById("tabInactive");
+      var activeCount = document.getElementById("activeCount");
+      var inactiveCount = document.getElementById("inactiveCount");
+      var subTabs = Array.prototype.slice.call(document.querySelectorAll(".staff-top-tab"));
+      var staffToolbar = document.getElementById("staffToolbar");
+      var staffStatusTabs = document.getElementById("staffStatusTabs");
+      var monthWrap = document.getElementById("monthWrap");
+      var staffHeadRow = document.getElementById("staffHeadRow");
+      var tabMonth = document.getElementById("tabMonth");
+      var currentStatus = "active";
+      var currentSubtab = "staff";
+      var selectedMap = {};
+      var INACTIVE_KEY = "jb_staff_inactive_ids";
+      var DELETED_KEY = "jb_staff_deleted_ids";
+      var TYPE_KEY = "jb_staff_type_map";
+      var ATTENDANCE_KEY = "jb_staff_attendance_records";
+      var PAY_RATES = {
+        partMainRegular: 40000,
+        partAsstRegular: 25000,
+        partMainClub: 60000,
+        partAsstClub: 40000,
+        vehicleHourly: 12000,
+      };
+      var partClassStaffId = null;
+
+      function esc(v) {
+        return String(v == null ? "" : v)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function normalizeStatus(s) {
+        var inactiveSet = getInactiveSet();
+        var sid = (s && (s.id || s.userId || s.email || s.phone || "")) || "";
+        if (sid && inactiveSet[sid]) return "inactive";
+        var raw = String((s && (s.status || s.employmentStatus || "")) || "").toLowerCase();
+        if (raw === "inactive" || raw === "retired" || raw === "퇴사") return "inactive";
+        return "active";
+      }
+
+      function getInactiveSet() {
+        try {
+          var raw = localStorage.getItem(INACTIVE_KEY);
+          var list = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(list)) return {};
+          return list.reduce(function (acc, id) {
+            acc[String(id)] = true;
+            return acc;
+          }, {});
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveInactiveSet(map) {
+        var ids = Object.keys(map).filter(function (k) { return !!map[k]; });
+        localStorage.setItem(INACTIVE_KEY, JSON.stringify(ids));
+      }
+
+      function getDeletedSet() {
+        try {
+          var raw = localStorage.getItem(DELETED_KEY);
+          var list = raw ? JSON.parse(raw) : [];
+          if (!Array.isArray(list)) return {};
+          return list.reduce(function (acc, id) {
+            acc[String(id)] = true;
+            return acc;
+          }, {});
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveDeletedSet(map) {
+        var ids = Object.keys(map).filter(function (k) { return !!map[k]; });
+        localStorage.setItem(DELETED_KEY, JSON.stringify(ids));
+      }
+
+      function getTypeMap() {
+        try {
+          var raw = localStorage.getItem(TYPE_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          return map && typeof map === "object" ? map : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveTypeMap(map) {
+        localStorage.setItem(TYPE_KEY, JSON.stringify(map || {}));
+      }
+
+      function getAttendanceMap() {
+        try {
+          var raw = localStorage.getItem(ATTENDANCE_KEY);
+          var map = raw ? JSON.parse(raw) : {};
+          return map && typeof map === "object" ? map : {};
+        } catch (e) {
+          return {};
+        }
+      }
+
+      function saveAttendanceMap(map) {
+        localStorage.setItem(ATTENDANCE_KEY, JSON.stringify(map || {}));
+      }
+
+      function parseHmToMinutes(s) {
+        var m = /^(\d{1,2}):(\d{2})$/.exec(String(s || ""));
+        if (!m) return null;
+        return parseInt(m[1], 10) * 60 + parseInt(m[2], 10);
+      }
+
+      function hoursBetweenHm(start, end) {
+        var a = parseHmToMinutes(start);
+        var b = parseHmToMinutes(end);
+        if (a == null || b == null || b <= a) return 0;
+        return (b - a) / 60;
+      }
+
+      function resolvePartClassKind(rec) {
+        var name = String(rec.partClassName || "").trim();
+        if (/^U-/i.test(name)) return "club";
+        if (rec.partClassKind === "club" || rec.partClassKind === "regular") return rec.partClassKind;
+        return "regular";
+      }
+
+      function partClassUnitPay(rec) {
+        var club = resolvePartClassKind(rec) === "club";
+        var asst = rec.partCoachRole === "assistant";
+        if (club) return asst ? PAY_RATES.partAsstClub : PAY_RATES.partMainClub;
+        return asst ? PAY_RATES.partAsstRegular : PAY_RATES.partMainRegular;
+      }
+
+      function formatWon(n) {
+        return Math.round(Number(n) || 0).toLocaleString("ko-KR") + "원";
+      }
+
+      function getAttendanceRecordsForStaff(staffId, monthStr) {
+        var prefix = String(staffId) + "|";
+        var map = getAttendanceMap();
+        var rows = [];
+        Object.keys(map).forEach(function (key) {
+          if (key.indexOf(prefix) !== 0) return;
+          var datePart = key.slice(prefix.length);
+          if (monthStr && datePart.slice(0, 7) !== monthStr) return;
+          var rec = map[key] || {};
+          var has =
+            rec.startTime ||
+            rec.endTime ||
+            rec.vehicleStartTime ||
+            rec.vehicleEndTime ||
+            rec.classMarked;
+          if (!has) return;
+          rows.push({ date: datePart, rec: rec });
+        });
+        rows.sort(function (a, b) {
+          return String(a.date).localeCompare(String(b.date));
+        });
+        return rows;
+      }
+
+      function attendanceDetailNote(rec) {
+        var parts = [];
+        if (rec.startTime && rec.endTime) parts.push("출퇴근 완료");
+        else if (rec.startTime) parts.push("출근만 기록");
+        if (rec.vehicleStartTime && rec.vehicleEndTime) parts.push("운행 완료");
+        else if (rec.vehicleStartTime) parts.push("운행 중");
+        if (rec.classMarked) parts.push("클래스");
+        return parts.length ? parts.join(" · ") : "-";
+      }
+
+      var attDetailOverlay = document.getElementById("attDetailOverlay");
+      var attDetailMeta = document.getElementById("attDetailMeta");
+      var attDetailTbody = document.getElementById("attDetailTbody");
+      var attDetailClose = document.getElementById("attDetailClose");
+
+      function openAttendanceDetail(staffId) {
+        var list = getStaffList();
+        var staff = list.find(function (s) { return String(s.id) === String(staffId); });
+        if (!staff) return;
+        var month = (tabMonth && tabMonth.value) ? tabMonth.value : "";
+        var monthLabel = month ? month.replace("-", "년 ") + "월" : "전체";
+        document.getElementById("attDetailTitle").textContent = staff.name + " — 출근·근태 상세";
+        attDetailMeta.textContent =
+          "직책: " +
+          staff.position +
+          " · 구분: " +
+          staff.staffType +
+          " · 조회: " +
+          monthLabel;
+        var records = getAttendanceRecordsForStaff(staffId, month || "");
+        if (!records.length) {
+          attDetailTbody.innerHTML =
+            '<tr><td colspan="6" class="att-detail-empty">해당 월에 저장된 출근·운행 기록이 없습니다.</td></tr>';
+        } else {
+          attDetailTbody.innerHTML = records
+            .map(function (row) {
+              var r = row.rec;
+              return (
+                "<tr>" +
+                "<td>" + esc(row.date) + "</td>" +
+                "<td>" + esc(r.startTime || "-") + "</td>" +
+                "<td>" + esc(r.endTime || "-") + "</td>" +
+                "<td>" + esc(r.vehicleStartTime || "-") + "</td>" +
+                "<td>" + esc(r.vehicleEndTime || "-") + "</td>" +
+                "<td>" + esc(attendanceDetailNote(r)) + "</td>" +
+                "</tr>"
+              );
+            })
+            .join("");
+        }
+        attDetailOverlay.hidden = false;
+        document.body.classList.add("modal-open");
+      }
+
+      function closeAttendanceDetail() {
+        attDetailOverlay.hidden = true;
+        document.body.classList.remove("modal-open");
+      }
+
+      function monthDateLabel(monthText) {
+        var now = new Date();
+        var y = now.getFullYear();
+        var m = String(now.getMonth() + 1).padStart(2, "0");
+        var d = String(now.getDate()).padStart(2, "0");
+        var base = monthText || (y + "-" + m);
+        return base + "-" + d;
+      }
+
+      function toHm(d) {
+        return String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
+      }
+
+      function isEligibleAttendance(staff) {
+        var pos = String(staff.position || "");
+        var isRole = pos.indexOf("대표") >= 0 || pos.indexOf("코치") >= 0 || pos.indexOf("실장") >= 0;
+        return isRole && staff.staffType === "정직원";
+      }
+
+      function isPartCoach(staff) {
+        var pos = String(staff.position || "");
+        return pos.indexOf("코치") >= 0 && staff.staffType === "파트";
+      }
+
+      function isVehicleTeacher(staff) {
+        return String(staff.position || "").indexOf("차량선생님") >= 0;
+      }
+
+      function roleBadgeClass(position) {
+        var p = String(position || "");
+        if (p.indexOf("차량선생님") >= 0) return "role-badge role-badge--vehicle";
+        if (p.indexOf("대표") >= 0) return "role-badge role-badge--ceo";
+        if (p.indexOf("실장") >= 0) return "role-badge role-badge--lead";
+        return "role-badge role-badge--coach";
+      }
+
+      function getStaffList() {
+        var deletedSet = getDeletedSet();
+        var typeMap = getTypeMap();
+        return JBAuth.listStaffSafe().map(function (s, idx) {
+          var id = s.id || s.userId || s.email || ("staff-" + idx);
+          return {
+            id: id,
+            name: s.name || "-",
+            position: s.position || "코치",
+            phone: s.phone || "-",
+            account: s.account || s.accountNumber || "-",
+            rrn: s.rrn || s.residentNo || "-",
+            staffType: typeMap[String(id)] || s.staffType || "정직원",
+            status: normalizeStatus(s),
+          };
+        }).filter(function (s) {
+          return !deletedSet[String(s.id)];
+        });
+      }
+
+      function render() {
+        if (currentSubtab === "attendance") {
+          renderAttendance();
+          return;
+        }
+
+        var all = getStaffList();
+        var search = String(searchInput.value || "").trim().toLowerCase();
+        var active = all.filter(function (s) { return s.status === "active"; });
+        var inactive = all.filter(function (s) { return s.status === "inactive"; });
+        activeCount.textContent = String(active.length);
+        inactiveCount.textContent = String(inactive.length);
+
+        var base = currentStatus === "active" ? active : inactive;
+        var filtered = base.filter(function (s) {
+          return !search || String(s.name || "").toLowerCase().indexOf(search) >= 0;
+        });
+
+        tbody.innerHTML = filtered.map(function (s) {
+          var manageCell = currentStatus === "inactive"
+            ? ('<button type="button" class="btn-edit-row btn-restore-row" data-restore="' + esc(s.id) + '">복원처리</button>' +
+              '<button type="button" class="btn-edit-row btn-delete-row" data-delete="' + esc(s.id) + '">삭제</button>')
+            : ('<button type="button" class="btn-edit-row btn-retire-row" data-retire="' + esc(s.id) + '">퇴사처리</button>');
           return (
-            "<tr><td>" +
-            (s.name || "") +
-            "</td><td>" +
-            (s.position || "") +
-            "</td><td>" +
-            (s.phone || "") +
-            "</td><td>" +
-            (s.email || "") +
-            "</td></tr>"
+            '<tr data-id="' + esc(s.id) + '">' +
+            '<td class="cell-check"><input type="checkbox" data-cb="' + esc(s.id) + '"' + (selectedMap[s.id] ? " checked" : "") + " /></td>" +
+            "<td>" + esc(s.name) + "</td>" +
+            '<td><span class="' + roleBadgeClass(s.position) + '">' + esc(s.position) + "</span></td>" +
+            "<td>" + esc(s.phone) + "</td>" +
+            "<td>" + esc(s.account) + "</td>" +
+            "<td>" + esc(s.rrn) + "</td>" +
+            '<td><select class="staff-type-select staff-type-select--readonly" data-type-id="' + esc(s.id) + '" disabled>' +
+              '<option value="정직원"' + (s.staffType === "정직원" ? " selected" : "") + ">정직원</option>" +
+              '<option value="파트"' + (s.staffType === "파트" ? " selected" : "") + ">파트</option>" +
+            "</select></td>" +
+            '<td class="staff-manage-cell">' + manageCell + "</td>" +
+            "</tr>"
           );
-        })
-        .join("");
+        }).join("");
+      }
+
+      function renderAttendance() {
+        staffStatusTabs.hidden = true;
+        monthWrap.hidden = false;
+        staffHeadRow.innerHTML =
+          "<th>이름</th>" +
+          "<th>직책</th>" +
+          "<th>날짜</th>" +
+          "<th>시작시간</th>" +
+          "<th>종료시간</th>" +
+          "<th>구분</th>" +
+          "<th>비고</th>";
+        var list = getStaffList().filter(function (s) { return s.status === "active"; });
+        var q = String(searchInput.value || "").trim().toLowerCase();
+        var filtered = list.filter(function (s) {
+          return !q || String(s.name || "").toLowerCase().indexOf(q) >= 0;
+        });
+        if (!filtered.length) {
+          tbody.innerHTML = '<tr><td colspan="7" class="attendance-empty">근태 기록이 없습니다.</td></tr>';
+          return;
+        }
+        var month = (tabMonth && tabMonth.value) ? tabMonth.value : "";
+        var dateText = month ? month.replace("-", "년 ") + "월" : "-";
+        var attendanceMap = getAttendanceMap();
+        tbody.innerHTML = filtered.map(function (s) {
+          var k = s.id + "|" + monthDateLabel(month);
+          var rec = attendanceMap[k] || {};
+          var start = rec.startTime || "-";
+          var end = rec.endTime || "-";
+          var vehStart = rec.vehicleStartTime || "-";
+          var vehEnd = rec.vehicleEndTime || "-";
+          if (isVehicleTeacher(s)) {
+            start = vehStart;
+            end = vehEnd;
+          }
+          var noteCell = "-";
+          var typeBadgeClass = s.staffType === "파트" ? "staff-type-badge staff-type-badge--part" : "staff-type-badge staff-type-badge--full";
+          if (isVehicleTeacher(s)) {
+            noteCell =
+              '<div class="att-btns">' +
+              '<button type="button" class="att-btn att-btn--veh-start" data-att="veh-start" data-id="' + esc(s.id) + '"' + (vehStart !== "-" ? " disabled" : "") + ">운행시작</button>" +
+              '<button type="button" class="att-btn att-btn--veh-end" data-att="veh-end" data-id="' + esc(s.id) + '"' + (vehStart === "-" || vehEnd !== "-" ? " disabled" : "") + ">운행종료</button>" +
+              "</div>";
+          } else if (isEligibleAttendance(s)) {
+            noteCell =
+              '<div class="att-btns">' +
+              '<button type="button" class="att-btn att-btn--in" data-att="in" data-id="' + esc(s.id) + '">출근</button>' +
+              '<button type="button" class="att-btn att-btn--out" data-att="out" data-id="' + esc(s.id) + '">퇴근</button>' +
+              "</div>";
+          } else if (isPartCoach(s)) {
+            noteCell =
+              '<div class="att-btns">' +
+              '<button type="button" class="att-btn att-btn--class" data-att="class" data-id="' + esc(s.id) + '">클래스</button>' +
+              "</div>";
+          }
+          return (
+            "<tr>" +
+            '<td><button type="button" class="att-name-link" data-att-detail="' + esc(s.id) + '">' + esc(s.name) + "</button></td>" +
+            '<td><span class="' + roleBadgeClass(s.position) + '">' + esc(s.position) + "</span></td>" +
+            "<td>" + esc(dateText) + "</td>" +
+            "<td>" + esc(start) + "</td>" +
+            "<td>" + esc(end) + "</td>" +
+            '<td><span class="' + typeBadgeClass + '">' + esc(s.staffType) + "</span></td>" +
+            "<td>" + noteCell + "</td>" +
+            "</tr>"
+          );
+        }).join("");
+      }
+
+      function renderPayroll() {
+        staffStatusTabs.hidden = true;
+        monthWrap.hidden = false;
+        staffHeadRow.innerHTML =
+          "<th>이름</th>" +
+          "<th>직책</th>" +
+          "<th>정산월</th>" +
+          "<th>기본급</th>" +
+          "<th>수당</th>" +
+          "<th>공제</th>" +
+          "<th>실지급액</th>";
+        tbody.innerHTML = '<tr><td colspan="7" class="attendance-empty">급여 기록이 없습니다.</td></tr>';
+      }
+
+      function renderStaffMode() {
+        staffStatusTabs.hidden = false;
+        monthWrap.hidden = true;
+        staffHeadRow.innerHTML =
+          '<th class="cell-check"><input type="checkbox" id="cbAll" aria-label="전체 선택" /></th>' +
+          "<th>이름</th>" +
+          "<th>직책</th>" +
+          "<th>연락처</th>" +
+          "<th>계좌번호</th>" +
+          "<th>주민번호</th>" +
+          "<th>구분</th>" +
+          "<th>관리</th>";
+        render();
+      }
+
+      searchInput.addEventListener("input", render);
+      if (tabMonth) {
+        tabMonth.value = new Date().toISOString().slice(0, 7);
+        tabMonth.addEventListener("change", function () {
+          if (currentSubtab === "attendance") renderAttendance();
+          else if (currentSubtab === "payroll") renderPayroll();
+        });
+      }
+
+      tabActive.addEventListener("click", function () {
+        currentStatus = "active";
+        tabActive.classList.add("is-on");
+        tabInactive.classList.remove("is-on");
+        render();
+      });
+
+      tabInactive.addEventListener("click", function () {
+        currentStatus = "inactive";
+        tabInactive.classList.add("is-on");
+        tabActive.classList.remove("is-on");
+        render();
+      });
+
+      subTabs.forEach(function (btn) {
+        btn.addEventListener("click", function () {
+          subTabs.forEach(function (b) { b.classList.remove("is-on"); });
+          btn.classList.add("is-on");
+          currentSubtab = btn.dataset.subtab || "staff";
+          if (currentSubtab === "attendance") {
+            renderAttendance();
+            return;
+          }
+          if (currentSubtab === "staff") {
+            renderStaffMode();
+            return;
+          }
+          if (currentSubtab === "payroll") {
+            renderPayroll();
+            return;
+          }
+        });
+      });
+
+      if (attDetailClose) {
+        attDetailClose.addEventListener("click", closeAttendanceDetail);
+      }
+      if (attDetailOverlay) {
+        attDetailOverlay.addEventListener("click", function (e) {
+          if (e.target === attDetailOverlay) closeAttendanceDetail();
+        });
+      }
+      document.addEventListener("keydown", function (e) {
+        if (e.key !== "Escape") return;
+        var pco = document.getElementById("partClassOverlay");
+        if (pco && !pco.hidden) {
+          closePartClassModal();
+          return;
+        }
+        if (attDetailOverlay && !attDetailOverlay.hidden) closeAttendanceDetail();
+      });
+
+      tbody.addEventListener("click", function (e) {
+        var detailBtn = e.target.closest && e.target.closest("[data-att-detail]");
+        if (detailBtn && currentSubtab === "attendance") {
+          var sid = detailBtn.getAttribute("data-att-detail");
+          if (sid) openAttendanceDetail(sid);
+          return;
+        }
+
+        var retireId = e.target && e.target.dataset && e.target.dataset.retire;
+        if (retireId) {
+          var inactiveSet = getInactiveSet();
+          inactiveSet[String(retireId)] = true;
+          saveInactiveSet(inactiveSet);
+          if (window.JBUI && JBUI.toast) JBUI.toast("퇴사처리되었습니다.", "ok");
+          render();
+          return;
+        }
+
+        var restoreId = e.target && e.target.dataset && e.target.dataset.restore;
+        if (restoreId) {
+          var inactiveSet2 = getInactiveSet();
+          delete inactiveSet2[String(restoreId)];
+          saveInactiveSet(inactiveSet2);
+          if (window.JBUI && JBUI.toast) JBUI.toast("재직직원으로 복원되었습니다.", "ok");
+          render();
+          return;
+        }
+
+        var deleteId = e.target && e.target.dataset && e.target.dataset.delete;
+        if (deleteId) {
+          var inactiveSet3 = getInactiveSet();
+          var deletedSet = getDeletedSet();
+          delete inactiveSet3[String(deleteId)];
+          deletedSet[String(deleteId)] = true;
+          saveInactiveSet(inactiveSet3);
+          saveDeletedSet(deletedSet);
+          if (window.JBUI && JBUI.toast) JBUI.toast("직원 목록에서 삭제되었습니다.", "ok");
+          render();
+        }
+
+        var attAction = e.target && e.target.dataset && e.target.dataset.att;
+        var attId = e.target && e.target.dataset && e.target.dataset.id;
+        if (attAction && attId && currentSubtab === "attendance") {
+          if (attAction === "class") {
+            var monthC = (tabMonth && tabMonth.value) ? tabMonth.value : "";
+            var keyC = attId + "|" + monthDateLabel(monthC);
+            var attMapC = getAttendanceMap();
+            var recC = attMapC[keyC] || {};
+            recC.classMarked = true;
+            attMapC[keyC] = recC;
+            saveAttendanceMap(attMapC);
+            if (window.JBUI && JBUI.toast) JBUI.toast("클래스 근무로 표시되었습니다.", "ok");
+            renderAttendance();
+            return;
+          }
+          var month = (tabMonth && tabMonth.value) ? tabMonth.value : "";
+          var key = attId + "|" + monthDateLabel(month);
+          var attMap = getAttendanceMap();
+          var rec = attMap[key] || {};
+          var nowHm = toHm(new Date());
+          if (attAction === "veh-start" && !rec.vehicleStartTime) {
+            rec.vehicleStartTime = nowHm;
+            if (window.JBUI && JBUI.toast) JBUI.toast("운행을 시작했습니다.", "ok");
+          } else if (attAction === "veh-end" && rec.vehicleStartTime && !rec.vehicleEndTime) {
+            rec.vehicleEndTime = nowHm;
+            if (window.JBUI && JBUI.toast) JBUI.toast("운행을 종료했습니다.", "ok");
+          } else if (attAction === "in") {
+            rec.startTime = nowHm;
+          } else if (attAction === "out") {
+            if (!rec.startTime) rec.startTime = nowHm;
+            rec.endTime = nowHm;
+          }
+          attMap[key] = rec;
+          saveAttendanceMap(attMap);
+          renderAttendance();
+        }
+      });
+
+      tbody.addEventListener("change", function (e) {
+        var cbId = e.target && e.target.dataset && e.target.dataset.cb;
+        if (cbId) {
+          if (e.target.checked) selectedMap[cbId] = true;
+          else delete selectedMap[cbId];
+          return;
+        }
+        var typeId = e.target && e.target.dataset && e.target.dataset.typeId;
+        if (typeId) {
+          var map = getTypeMap();
+          map[String(typeId)] = e.target.value || "정직원";
+          saveTypeMap(map);
+          if (window.JBUI && JBUI.toast) JBUI.toast("구분이 저장되었습니다.", "ok");
+        }
+      });
+
+      function syncLatestStaff() {
+        if (currentSubtab !== "staff") return;
+        if (JBAuth.refreshStaffCache) {
+          Promise.resolve(JBAuth.refreshStaffCache()).finally(render);
+          return;
+        }
+        render();
+      }
+
+      window.addEventListener("focus", syncLatestStaff);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) syncLatestStaff();
+      });
+      window.addEventListener("storage", syncLatestStaff);
+
+      bindPartClassModal();
+      renderStaffMode();
     }
       if (JBAuth.waitForSession) {
         JBAuth.waitForSession().then(run);

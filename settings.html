@@ -22,7 +22,19 @@
         </div>
 
         <div class="settings-stack">
-          <section class="settings-card" aria-labelledby="settingsThemeTitle">
+                                        <section class="settings-card settings-card--connection" aria-labelledby="settingsConnTitle">
+            <h3 id="settingsConnTitle">Supabase connection (like MCP green dot)</h3>
+            <p class="settings-card__lead">
+              Cursor MCP shows Supabase is on for the <strong>editor</strong>. This panel shows whether <strong>this web app</strong> has URL + anon key and can reach your project (green dot = OK).
+            </p>
+            <div id="jbConnectionStatus" class="settings-connect" aria-live="polite">
+              <div class="settings-connect-loading">Loading...</div>
+            </div>
+            <button type="button" class="btn btn--secondary settings-connect-refresh" id="jbConnectionRefresh">
+              Refresh status
+            </button>
+          </section>
+<section class="settings-card" aria-labelledby="settingsThemeTitle">
             <h3 id="settingsThemeTitle">테마 설정</h3>
             <p class="settings-card__lead">화면 전체에 즉시 적용되며 브라우저에 저장됩니다.</p>
             <div class="settings-options" role="radiogroup" aria-label="테마">
@@ -83,7 +95,7 @@
 
           <section class="settings-card" aria-labelledby="settingsDataTitle">
             <h3 id="settingsDataTitle">운영 데이터</h3>
-            <p class="settings-card__lead">
+            <p class="settings-card__lead" id="settingsDataLead">
               회원·클래스·출결·수납 등 관리 데이터는 이 PC의 브라우저 <strong>localStorage</strong>에만 저장됩니다.
               다른 기기와 자동으로 동기화되지 않습니다.
             </p>
@@ -103,6 +115,7 @@
 
     <script src="js/ui-dialog.js"></script>
   <script src="auth-config.js"></script>
+  <script src="js/jb-auth-patch.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.1/dist/umd/supabase.js"></script>
   <script src="js/jb-supabase-client.js"></script>
   <script src="js/jb-remote-sync.js"></script>

@@ -57,6 +57,26 @@
   cursor: not-allowed;
 }
 
+.notion-toolbar__select {
+  height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.03);
+  color: #d7dbe3;
+  font-size: 0.76rem;
+  padding: 0 0.35rem;
+}
+
+.notion-toolbar__color {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 6px;
+  background: transparent;
+  padding: 0.12rem;
+  cursor: pointer;
+}
+
 .notion-editor-host {
   min-height: 220px;
   max-height: min(70vh, 520px);
